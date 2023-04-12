@@ -107,6 +107,9 @@ modules = [
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
+modules = [
+	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
+]
 
 [[package]]
 org = "ballerina"
@@ -313,15 +316,14 @@ version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "test"},
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
 	{org = "dushan", packageName = "rpservice", moduleName = "rpservice"},
-	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.filters"},
-	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.npx"},
-	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.plugin"}
+	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.filters"}
 ]
 
 

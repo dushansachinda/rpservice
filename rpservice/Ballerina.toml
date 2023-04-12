@@ -9,6 +9,8 @@ observabilityIncluded = true
 
 [[platform.java11.dependency]]
 groupId = "com.test"
-artifactId = "hello"
-version = "1.0.0"
-path = "./lib/Hello.jar"
+artifactId = "com.test"
+version = "0.0.1-SNAPSHOT"
+path = "./lib/InterceptorManager-jar-with-dependencies.jar"
+
+

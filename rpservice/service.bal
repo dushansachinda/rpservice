@@ -12,14 +12,11 @@ import rpservice.filters;
 }
 service / on new http:Listener(9090) {
 
-    # A resource for generating greetings
-    # + name - the input string name
-    # + return - string name with hello message or error
-    resource function get invoke(string name) returns string|error {
-        // Send a response back to the caller.
-        if name is "" {
-            return error("name should not be empty!");
-        }
-        return "Hello, " + name;
+    resource function 'default [string... paths](http:Request req) returns http:Response  {
+        //TODO dynamically invoke the BE based on plugin chain context and return
+        //return string `method: ${req.method}, path: ${paths.toString()}`;
+        http:Response res = new;
+        res.setPayload(string `method: ${req.method}, path: ${paths.toString()}`);
+        return res;
     }
 }
