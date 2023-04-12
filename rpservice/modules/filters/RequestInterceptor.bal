@@ -18,12 +18,17 @@ public service class RequestInterceptor {
         // Checks the API version header.
         log:printInfo("RequestInterceptor invoked!!!!!");
         log:printInfo("request path: " + path.toString());
-        log:printInfo("ctx keys: " , test=ctx.keys());
-        
+        log:printInfo("ctx keys: ", test = ctx.keys());
+
         if authorization == "" {
             // Returns a `501 NotImplemented` response if the version is not supported.
             return http:UNAUTHORIZED;
         }
+
+        log:printInfo("JAVA Before method call: " + path[0]);
+        () _ = callJavaMethod();
+
+        log:printInfo("JAVA After method call: " + path[0]);
 
         log:printInfo("BEFORE pluginChain: " + path[0]);
         string pluginChain = npx:pluginChain(path[0]);

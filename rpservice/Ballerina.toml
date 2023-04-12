@@ -6,3 +6,9 @@ distribution = "2201.3.2"
 
 [build-options]
 observabilityIncluded = true
+
+[[platform.java11.dependency]]
+groupId = "com.test"
+artifactId = "hello"
+version = "1.0.0"
+path = "./lib/Hello.jar"
