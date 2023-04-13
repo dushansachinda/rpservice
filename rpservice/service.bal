@@ -23,8 +23,6 @@ service / on new http:Listener(9095) {
         //TODO dynamically invoke the BE based on plugin chain context and return
         //return string `method: ${req.method}, path: ${paths.toString()}`;
         //string path = req.rawPath;
-        log:printInfo("path: " + paths[0]);
-        log:printInfo("RAW path: " + req.rawPath);
         string urlPostfix =req.rawPath; //replaceFirst(req.rawPath,paths[0],"");
 
          if(urlPostfix != "" && !hasPrefix(urlPostfix, "/")) {
