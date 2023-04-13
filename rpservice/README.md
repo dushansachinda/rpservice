@@ -174,6 +174,7 @@ return ctx.next();
 
 The interoperability.bal file demonstrates how to call Java methods from Ballerina code. The **callInterceptManager** function invokes the interceptRequest method of the InterceptorManager class in Java. (this is similar to how implemented the InterceptorManager, the libraries can call directly without implementing the entire logic from ballerina which makes the transition faster and allows decoupling from micro gateway dependencies.
 
+```
 isolated function interceptRequest(http:Caller caller,http:Request req) returns handle = @java:Method {
 
 name: "interceptRequest",
@@ -191,11 +192,13 @@ var txt = interceptRequest(caller,req);
 io:println(txt);
 
 }
+```
 
 ### InterceptorManager in Java:
 
 The InterceptorManager.java file contains the interceptRequest method, which receives the caller and requests objects from Ballerina. The implementation of the plugin chain and routing logic should be placed in this method.
 
+```
 public class InterceptorManager {
 
 public static String interceptRequest(ObjectValue caller, ObjectValue request) {
@@ -209,6 +212,7 @@ return "Hello . NPX. .";
 }
 
 }
+```
 
 Execute bal build --native --cloud=docker to generate the artifacts with the native executable. Optionally, you can create a file named Cloud.toml in the package directory to add cloud related configurations. For more information, see [Docker](https://ballerina.io/learn/by-example/c2c-docker-deployment/) and [Kubernetes](https://ballerina.io/learn/by-example/c2c-k8s-deployment/) documentation.
 
