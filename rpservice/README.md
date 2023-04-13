@@ -231,8 +231,18 @@ Run sample
   - curl -H "Authoriziation:vxxxxxxx" http://localhost:9095/partner?name=test -v
   - curl -H "Authoriziation:vxxxxxxx" http://localhost:9095/finance?name=test -v
 
+
+###
+
+
+### Additional
+
+- To extend the InterceptorManager with additional plugin execution logics, refer to the implementation references in [4]. These references offer valuable insights into customizing the InterceptorManager to meet specific needs. By leveraging these references, developers can improve the functionality and performance of their dynamic routing service in Ballerina.
+
 [1] [https://github.com/dushansachinda/rpservice/tree/master/rpservice](https://github.com/dushansachinda/rpservice/tree/master/rpservice)
 
 [2] [https://ballerina.io/learn/get-started-with-ballerina/](https://ballerina.io/learn/get-started-with-ballerina/)
 
 [3] [https://ballerina.io/learn/by-example/c2c-docker-deployment/](https://ballerina.io/learn/by-example/c2c-docker-deployment/)
+
+[4] https://github.com/dushansachinda/rpservice/tree/master/com.test
