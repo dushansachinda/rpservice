@@ -5,5 +5,184 @@ https://ballerina.io/learn/by-example/http-request-interceptor/
 
  bal build --native --cloud=docker
 
- curl -H "Authoriziation:vxxxxxxx" http://localhost:9090/partner?name=test -v
- curl -H "Authoriziation:vxxxxxxx" http://localhost:9090/finance?name=test -v
+ curl -H "Authoriziation:vxxxxxxx" http://localhost:9095/partner?name=test -v
+ curl -H "Authoriziation:vxxxxxxx" http://localhost:9095/finance?name=test -v
+
+curl -X 'POST' \
+  'http://localhost:9095/pet' \
+  -H 'accept: */*' \
+  -H "Authoriziation:vxxxxxxx" \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": "1",
+  "category": {
+    "id": 0,
+    "name": "adfad"
+  },
+  "name": "adfdsfa",
+  "photoUrls": [
+    "string"
+  ],
+  "tags": [
+    {
+      "id": 0,
+      "name": "adfsadf"
+    }
+  ],
+  "status": "adsfasdfas"
+}'
+
+
+ MGW reference
+
+ https://github.com/wso2/product-microgateway/blob/d7dcfbc7e04ca5e006a8d68e172c7064472732dd/components/micro-gateway-core/src/main/ballerina/src/gateway/utils/lang_utils.bal
+
+
+
+ @http:ResourceConfig {
+        methods:["GET"],
+        path:"/pet/findByStatus",
+        auth:{
+        
+            authHandlers: gateway:getAuthHandlers(["oauth2","jwt"], false, false)
+        }
+    }
+    @gateway:Resource {
+        authProviders: ["oauth2","jwt"],
+        security: {
+            "apikey":[],
+            "applicationSecurityOptional": false 
+            }
+    }
+    @gateway:RateLimit{policy : ""}
+    resource function getb4362d9fd11948408b2198176dfacb4a (http:Caller outboundEp, http:Request req
+) {
+        handleExpectHeaderForSwagger_space_Petstore_space_New__1_0_0(outboundEp, req);
+        runtime:InvocationContext invocationContext = runtime:getInvocationContext();
+
+        map<string> pathParams = { 
+        };
+        invocationContext.attributes["pathParams"] = pathParams;
+        
+        if(getb4362d9fd11948408b2198176dfacb4a_api_request_interceptor_index == -1) {
+        
+        } else {
+            if (!gateway:invokeRequestInterceptor(getb4362d9fd11948408b2198176dfacb4a_api_request_interceptor_index, outboundEp, req)) {
+                if (respondFromJavaInterceptorSwagger_space_Petstore_space_New__1_0_0(invocationContext, <@untainted>outboundEp)) {
+                    // return only if  interceptor returned false and respond is called from interceptor.
+                    return;
+                }
+            }
+        }
+        
+
+        
+        string urlPostfix = gateway:replaceFirst(req.rawPath,"/petstore/v1","");
+        
+        if(urlPostfix != "" && !gateway:hasPrefix(urlPostfix, "/")) {
+            urlPostfix = "/" + urlPostfix;
+        }
+        http:Response|error clientResponse;
+        http:Response r = new;
+        clientResponse = r;
+        string destination_attribute;
+        invocationContext.attributes["timeStampRequestOut"] = time:currentTime().time;
+        boolean reinitRequired = false;
+        string failedEtcdKey = "";
+        string failedEtcdKeyConfigValue = "";
+        boolean|error hasUrlChanged;
+        http:ClientConfiguration newConfig;
+        boolean reinitFailed = false;
+        boolean isProdEtcdEnabled = false;
+        boolean isSandEtcdEnabled = false;
+        map<string> endpointEtcdConfigValues = {};
+        
+            
+            
+                if("PRODUCTION" == <string>invocationContext.attributes["KEY_TYPE"]) {
+                
+                    
+    clientResponse = Swagger_space_Petstore_space_New__1_0_0_prod->forward(urlPostfix, <@untainted>req);
+
+invocationContext.attributes["destination"] = gateway:retrieveConfig("api_1bff9f11aa45fd8d340e14633413481a2a963a5ff81b21fcebd62cea8e7bb012_prod_endpoint_0","http://run.mocky.io/v3/fc43a3db-0e14-4fd5-9692-a6fc8e07e01a");
+
+
+                
+                    } else {
+                
+                    http:Response res = new;
+res.statusCode = 403;
+string errorMessage = "Sandbox key offered to the API with no sandbox endpoint";
+if (! invocationContext.attributes.hasKey(gateway:IS_GRPC)) {
+    json payload = {
+        ERROR_CODE: "900901",
+        ERROR_MESSAGE: errorMessage
+    };
+    res.setPayload(payload);
+} else {
+    gateway:attachGrpcErrorHeaders (res, errorMessage);
+}
+invocationContext.attributes["error_code"] = "900901";
+clientResponse = res;
+                
+                }
+            
+        
+        
+        invocationContext.attributes["timeStampResponseIn"] = time:currentTime().time;
+
+
+        if(clientResponse is http:Response) {
+            
+            
+            if (getb4362d9fd11948408b2198176dfacb4a_api_response_interceptor_index == -1) {
+            
+            } else {
+                if (!gateway:invokeResponseInterceptor(getb4362d9fd11948408b2198176dfacb4a_api_response_interceptor_index, outboundEp, clientResponse)) {
+                    if (respondFromJavaInterceptorSwagger_space_Petstore_space_New__1_0_0(invocationContext, <@untainted>outboundEp)) {
+                        // return only if interceptor returned false and respond is called from interceptor.
+                        return;
+                    }
+                }
+            }
+
+            invocationContext.attributes[gateway:DID_EP_RESPOND] = true;
+            var outboundResult = outboundEp->respond(clientResponse);
+            if (outboundResult is error) {
+                gateway:printError(Swagger_space_Petstore_space_New__1_0_0Key, "Error when sending response", outboundResult);
+            }
+        } else {
+            http:Response res = new;
+            res.statusCode = 500;
+            string errorMessage = clientResponse.reason();
+            int errorCode = 101503;
+            string errorDescription = "Error connecting to the back end";
+
+            if(gateway:contains(errorMessage, "connection timed out") || gateway:contains(errorMessage,"Idle timeout triggered")) {
+                errorCode = 101504;
+                errorDescription = "Connection timed out";
+            }
+            if(gateway:contains(errorMessage, "Malformed URL")) {
+                errorCode = 101505;
+                errorDescription = "Malformed URL";
+            }
+            invocationContext.attributes["error_response_code"] = errorCode;
+            invocationContext.attributes["error_response"] = errorDescription;
+            if (! invocationContext.attributes.hasKey(gateway:IS_GRPC)) {
+                json payload = {fault : {
+                                code : errorCode,
+                                message : "Runtime Error",
+                                description : errorDescription
+                            }};
+
+                            res.setPayload(payload);
+            } else {
+                gateway:attachGrpcErrorHeaders (res, errorDescription);
+            }
+            gateway:printError(Swagger_space_Petstore_space_New__1_0_0Key, "Error in client response", clientResponse);
+            var outboundResult = outboundEp->respond(res);
+            if (outboundResult is error) {
+                gateway:printError(Swagger_space_Petstore_space_New__1_0_0Key, "Error when sending response", outboundResult);
+            }
+        }
+    }

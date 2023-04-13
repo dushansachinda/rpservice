@@ -16,14 +16,6 @@ public service class RequestInterceptor {
             @http:Header {name: "Authoriziation"} string authorization)
         returns http:Unauthorized|http:NextService|error? {
         // Checks the API version header.
-        log:printInfo("RequestInterceptor invoked!!!!!");
-        log:printInfo("request path: " + path.toString());
-        log:printInfo("ctx keys: ", test = ctx.keys());
-        if authorization == "" {
-            // Returns a `501 NotImplemented` response if the version is not supported.
-            return http:UNAUTHORIZED;
-        }
-
         log:printInfo("JAVA Before method call: " + path[0]);
         () _ = callInterceptManager(caller,req);
         log:printInfo("JAVA After method call: " + path[0]);
