@@ -4,15 +4,15 @@ import io.ballerina.runtime.internal.values.ObjectValue;
 
 public class InterceptorManager {
 
-	public static String interceptRequest(ObjectValue caller, ObjectValue request) {
-		
-		//Caller newcaller = new Caller(caller);
-		//Request newReq = new Request(request);
-		//TODO plugin chain and othe logic should be go here
+	public static boolean interceptRequest(ObjectValue caller, ObjectValue request) {
+	
+		Request reqWrapper = new  Request(request);
 		
 		System.out.println("caller " + caller);
-		System.out.println("caller " + request);
-		return "Hello . NPX. .";
+		System.out.println("request " + request);
+		
+		System.out.println("Request wrapper path info"+reqWrapper.getPathInfo());
+		return true;
 	}
 
 }

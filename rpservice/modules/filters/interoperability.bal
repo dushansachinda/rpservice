@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/jballerina.java as java;
 import ballerina/http;
 
-isolated function interceptRequest(http:Caller caller,http:Request req) returns handle = @java:Method {
+isolated function interceptRequest(http:Caller caller,http:Request req) returns boolean = @java:Method {
     name: "interceptRequest",
     'class: "com.test.interceptor.InterceptorManager"
 } external;
