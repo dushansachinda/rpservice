@@ -5,9 +5,9 @@ import ballerina/jballerina.java;
 
 // Define the endpoint URLs as a map
 map<string> endpointUrls = {
-    "finance": "https://run.mocky.io/v3/f919c881-a23e-482b-ae74-dbb0ca61b101",
-    "partner": "https://run.mocky.io/v3/97defad3-8983-45e1-a4d4-3f8b96470700",
-    "pet": "http://localhost:9090/"
+    "/admin/sniff.jsp": "https://run.mocky.io/v3/6613f69c-65cf-44d4-b29c-7887f21cfd59",
+    "/api/npx-service": "https://run.mocky.io/v3/84643c67-6ddb-4cf1-8141-f637154c9520",
+    "/pmg/nxn-metrics": "https://run.mocky.io/v3/b6a301fc-64d8-497d-9138-058d8946bd70"
 };
 
 // Engage interceptors at the service level. Request interceptor services will be executed from
@@ -29,7 +29,11 @@ service / on new http:Listener(9095) {
             urlPostfix = "/" + urlPostfix;
         }
 
-        var result = callEndpoint(caller, req, <string>endpointUrls[paths[0]],urlPostfix);
+        log:printInfo("map: path #####", sr = paths[0], sr2 =paths[1]);
+        log:printInfo("map: search #####", sr = endpointUrls[paths[0]]);
+        log:printInfo("map: req rawpath#####", sr = req.rawPath);
+
+        var result = callEndpoint(caller, req, <string>endpointUrls[req.rawPath],urlPostfix);
         if (result is error) {
             log:printError("Error calling endpoint: ", err = result.toString());
         }
