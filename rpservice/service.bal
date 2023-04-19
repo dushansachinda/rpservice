@@ -39,6 +39,9 @@ service / on new http:Listener(9095) {
         log:printInfo("map: call interceptor#####");
         //request interceptor pre-processing
         boolean pluginres = check interceptor:interceptRequest(caller, req);
+        if !pluginres {
+            return;
+        }
         //TODO validate request chain context and return
         var result = callEndpoint(caller, req, <string>endpointUrls[req.rawPath], urlPostfix);
 

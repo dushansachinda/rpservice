@@ -20,7 +20,23 @@ public class NetworkControlPlugin {
         } else {
             boolean isProxy = check self.isProxy(xforwardlist[0]);
             io:println("is proxy  ", isProxy);
-            return isProxy;
+            if (isProxy) {
+                return true;
+            } else {
+                //handle error
+                http:Response response = new ();
+                response.setTextPayload("Error wih x-forwarded-fo Network Control Plugin");
+                response.statusCode = 500;
+                http:ListenerError? respond = caller->respond(response);
+                if respond is http:ListenerError {
+
+                }
+                if respond is error {
+
+                }
+                return false;
+
+            }
         }
     }
 

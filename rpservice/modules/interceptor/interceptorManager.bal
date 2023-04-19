@@ -65,6 +65,15 @@ public function interceptRequest(http:Caller caller, http:Request req) returns b
             io:println("call plugin ->",plugin);
             boolean|error pluginresponse = plugin.callPlugin(caller, req);
             //return check pluginresponse;
+            if(pluginresponse is error){
+                return false;
+            }
+            if (pluginresponse is boolean) {
+                io:println("hit error plugin ->",plugin);
+                if(pluginresponse == false){
+                    return false;
+                }
+            }
         }
     }
     return true;
