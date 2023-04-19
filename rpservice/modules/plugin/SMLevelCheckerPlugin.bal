@@ -7,7 +7,7 @@ public class SMLevelCheckerPlugin  {
     public function init() {
       
     }
-    public function callPlugin(http:Caller caller, http:Request req) returns boolean {
+    public function callPlugin(http:Caller caller, http:Request req) returns boolean|error  {
         io:println("SMLevelCheckerPlugin !!!!!!") ;
         return true;
     }

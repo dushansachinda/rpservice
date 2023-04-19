@@ -9,8 +9,8 @@ map<string> endpointUrls = {
     "/admin/sniff.jsp": "https://run.mocky.io/v3/6613f69c-65cf-44d4-b29c-7887f21cfd59",
     "/api/npx-service": "https://run.mocky.io/v3/84643c67-6ddb-4cf1-8141-f637154c9520",
     "/pmg/nxn-metrics": "https://run.mocky.io/v3/b6a301fc-64d8-497d-9138-058d8946bd70",
-    "/app/nxn-resource-cache":"https://run.mocky.io/v3/34a9aeba-0b71-4fac-8451-b122c50cce45",
-    "/api/nxn-navbar-service":"https://run.mocky.io/v3/8f5cd8a1-85ae-4d73-946b-59dda7ce5992"
+    "/app/nxn-resource-cache": "https://run.mocky.io/v3/34a9aeba-0b71-4fac-8451-b122c50cce45",
+    "/api/nxn-navbar-service": "https://run.mocky.io/v3/8f5cd8a1-85ae-4d73-946b-59dda7ce5992"
 };
 
 // Engage interceptors at the service level. Request interceptor services will be executed from
@@ -22,28 +22,28 @@ map<string> endpointUrls = {
 }
 service / on new http:Listener(9095) {
 
-    resource function 'default [string... paths](http:Caller caller, http:Request req) returns error?  {
+    resource function 'default [string... paths](http:Caller caller, http:Request req) returns error? {
         //TODO dynamically invoke the BE based on plugin chain context and return
         //return string `method: ${req.method}, path: ${paths.toString()}`;
         //string path = req.rawPath;
-        string urlPostfix =req.rawPath; //replaceFirst(req.rawPath,paths[0],"");
+        string urlPostfix = req.rawPath; //replaceFirst(req.rawPath,paths[0],"");
 
-         if(urlPostfix != "" && !hasPrefix(urlPostfix, "/")) {
+        if (urlPostfix != "" && !hasPrefix(urlPostfix, "/")) {
             urlPostfix = "/" + urlPostfix;
         }
 
-        log:printInfo("map: path #####", sr = paths[0], sr2 =paths[1]);
+        log:printInfo("map: path #####", sr = paths[0], sr2 = paths[1]);
         log:printInfo("map: search #####", sr = endpointUrls[paths[0]]);
         log:printInfo("map: req rawpath#####", sr = req.rawPath);
 
-        log:printInfo("map: call interceptor#####" );
-        //caling the interceptor RequestInterceptor
+        log:printInfo("map: call interceptor#####");
+        //request interceptor pre-processing
         boolean pluginres = interceptor:interceptRequest(caller, req);
+        //TODO validate request chain context and return
+        var result = callEndpoint(caller, req, <string>endpointUrls[req.rawPath], urlPostfix);
 
-        var result = callEndpoint(caller, req, <string>endpointUrls[req.rawPath],urlPostfix);
-
-        // response interceptor 
-         boolean respresult = interceptor:interceptResponse(caller, req);
+        // response interceptor post-processing
+        boolean respresult = interceptor:interceptResponse(caller, req);
 
         if (result is error) {
             log:printError("Error calling endpoint: ", err = result.toString());
@@ -56,7 +56,7 @@ service / on new http:Listener(9095) {
 // Define the function that calls an endpoint
 function callEndpoint(http:Caller caller, http:Request request, string endpointUrl, string urlPostfix) returns error? {
     http:Client httpClient = check new (endpointUrl);
-    log:printInfo("HTTP call: " ,a=endpointUrl, b=urlPostfix);
+    log:printInfo("HTTP call: ", a = endpointUrl, b = urlPostfix);
     http:Response|http:ClientError response = httpClient->forward(urlPostfix, request);
     if (response is http:Response) {
         var result = caller->respond(response);
@@ -68,7 +68,6 @@ function callEndpoint(http:Caller caller, http:Request request, string endpointU
         //log:printError("Error calling endpoint: ", err );
     }
 }
-
 
 public function replaceFirst(string str, string regex, string replacement) returns string {
     handle reg = java:fromString(regex);
@@ -97,7 +96,6 @@ function jReplaceFirst(handle receiver, handle regex, handle replacement) return
     'class: "java.lang.String"
 } external;
 
-
-        //http:Response res = new;
-        //res.setPayload(string `method: ${req.method}, path: ${paths.toString()}`);
-        //return res;
+//http:Response res = new;
+//res.setPayload(string `method: ${req.method}, path: ${paths.toString()}`);
+//return res;
