@@ -1,0 +1,75 @@
+[
+  {
+    "id": "PEp6kblCPN2UZ6TAdpoK3FaK",
+    "requestPlugin": [
+      {
+        "id": "UserShellInjector",
+        "config": {
+          "appId": "nxn-tpa-app"
+        }
+      }
+    ],
+    "responsePlugin": [
+      {
+        "id": "UserShellInjector",
+        "config": {
+          "appId": "nxn-tpa-app",
+          "src": "/npx/gbxui/",
+          "height": "500 px",
+          "width": "600 px"
+        }
+      }
+    ]
+  },
+  {
+    "id": "341556EB780F463A91C0BAB50609B18D",
+    "basePath": "/app/nxn-resource-cache",
+    "requestPlugin": [
+      {
+        "id": "AddAccessTokenPlugin"
+      }
+    ],
+    "responsePlugin": [
+    ]
+  },
+  {
+    "id": "999BFF64241C43BA8EE8D6AB5CCBADD2",
+    "basePath": "/api/nxn-navbar-service",
+    "requestPlugin": [
+      {
+        "id": "SMLevelCheckerPlugin",
+        "config": {
+          "smLevel": 4
+        }
+      },
+      {
+        "id": "AddStandardNDPHeadersPlugin"
+      },
+      {
+        "id": "AddAccessTokenPlugin"
+      }
+    ],
+    "responsePlugin": [
+    ]
+  },
+  {
+    "id": "39B18ECC35994099BD2D229B520927F8",
+    "basePath": "/api/nxn-entitlement-service",
+    "requestPlugin": [
+      {
+        "id": "SMLevelCheckerPlugin",
+        "config": {
+          "smLevel": 4
+        }
+      },
+      {
+        "id": "AddStandardNDPHeadersPlugin"
+      },
+      {
+        "id": "AddAccessTokenPlugin"
+      }
+    ],
+    "responsePlugin": [
+    ]
+  }
+]
