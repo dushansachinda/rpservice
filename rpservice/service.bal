@@ -37,10 +37,14 @@ service / on new http:Listener(9095) {
         log:printInfo("map: req rawpath#####", sr = req.rawPath);
 
         log:printInfo("map: call interceptor#####" );
-        //caling the interceptor
+        //caling the interceptor RequestInterceptor
         boolean pluginres = interceptor:interceptRequest(caller, req);
 
         var result = callEndpoint(caller, req, <string>endpointUrls[req.rawPath],urlPostfix);
+
+        // response interceptor 
+         boolean respresult = interceptor:interceptResponse(caller, req);
+
         if (result is error) {
             log:printError("Error calling endpoint: ", err = result.toString());
         }

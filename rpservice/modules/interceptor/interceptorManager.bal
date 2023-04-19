@@ -1,5 +1,7 @@
 import ballerina/io;
+import rpservice.plugin;
 import ballerina/http;
+
 
 type RequestConfig record {
     string id;
@@ -33,6 +35,7 @@ type ResourceConfig record {
 };
 
 map<RequestConfig> pluginMap = {};
+map<plugin:Plugin> pluginModuleMap = {};
 
 function init() returns error? {
     json[] resultAr = check readplugin().ensureType();
@@ -43,14 +46,20 @@ function init() returns error? {
             pluginMap[<string>requestConfigs.basePath] = requestConfigs;
         }    
     }
+    loadPlugin();
 }
 
 public function interceptRequest(http:Caller caller, http:Request req) returns boolean {
     string basePath = req.rawPath;
     RequestConfig requestConfig  =check pluginMap.get(basePath);
-    io:println("invoke interceptor request manager !!!!!!",requestConfig) ;
+    foreach RequestPlugin requestPlugin in requestConfig.requestPlugin {
+         io:println("invoke interceptor request manager !!!!!!",requestPlugin.id) ;
+         plugin:Plugin? plugin =  pluginModuleMap[requestPlugin.id];
+         if(plugin != ()){
+            boolean pluginresponse = plugin.callPlugin(caller,req);
+         }
+    }
     return true;
-
 }
 
 public function interceptResponse(http:Caller caller, http:Request req) returns boolean {
@@ -65,7 +74,13 @@ function readplugin() returns json|error {
     return pluginChainJson;
 }
 
-public function main() {
-    // This will not be executed because the init function returns an error.
-    io:println("running main");
+public function loadPlugin() {
+    plugin:AddAccessTokenPlugin addAccessTokenPlugin = new;
+    plugin:AddStandardNDPHeadersPlugin  addStandardNDPHeadersPlugin= new;
+    plugin:SMLevelCheckerPlugin  smLevelCheckerPlugin= new;
+
+    pluginModuleMap["AddAccessTokenPlugin"] = addAccessTokenPlugin;
+    pluginModuleMap["AddStandardNDPHeadersPlugin"] = addStandardNDPHeadersPlugin;
+    pluginModuleMap["SMLevelCheckerPlugin"] = smLevelCheckerPlugin;
 }
+
