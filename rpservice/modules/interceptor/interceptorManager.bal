@@ -1,9 +1,9 @@
 import ballerina/io;
 import rpservice.plugin;
 import ballerina/http;
+import rpservice.util;
 import ballerina/regex;
 
-//import ballerina/regex;
 
 type RequestConfig record {
     string id;
@@ -38,9 +38,9 @@ type ResourceConfig record {
 
 map<RequestConfig> pluginMap = {};
 map<plugin:Plugin> pluginModuleMap = {};
-map<string> propertiesMap = {};
 
 function init() returns error? {
+    util:readProperties();
     json[] resultAr = check readplugin().ensureType();
     foreach var resconfig in resultAr {
         RequestConfig requestConfigs = check resconfig.cloneWithType(RequestConfig);
@@ -50,7 +50,7 @@ function init() returns error? {
         }
     }
     loadPlugin();
-    readProperties();
+    io:println("property map init #",util:propertiesMap) ;
 }
 
 public function interceptRequest(http:Caller caller, http:Request req) returns boolean {
@@ -90,6 +90,8 @@ public function loadPlugin() {
     pluginModuleMap["NetworkControlPlugin"] = networkControlPlugin;
 }
 
+public map<string> propertiesMap = {};
+
 public function readProperties() {
     map<string> propertiesMap = {};
     do {
@@ -99,7 +101,7 @@ public function readProperties() {
         foreach string line in propertyLines {
             if line.length() > 0 && !line.startsWith("#") {
                 string[] keyValue = regex:split(line, "="); //line.split("=");
-                io:println("Key: ", keyValue[0], " Value: ", keyValue[1]);
+                //io:println("Key: ", keyValue[0], " Value: ", keyValue[1]);
                 propertiesMap[keyValue[0]] = keyValue[1];
             }
         }
@@ -108,4 +110,6 @@ public function readProperties() {
     }
 
 }
+
+
 

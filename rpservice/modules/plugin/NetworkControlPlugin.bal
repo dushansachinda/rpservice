@@ -1,4 +1,5 @@
 import ballerina/http;
+import rpservice.util;
 import ballerina/io;
 public class NetworkControlPlugin {
     *Plugin;
@@ -8,6 +9,7 @@ public class NetworkControlPlugin {
     }
     public function callPlugin(http:Caller caller, http:Request req) returns boolean|error {
         io:println("NetworkControlPlugin !!!!!!") ;
+        io:println("check ip list !!!!!!",util:propertiesMap.get("proxy-ips")) ;
         return true;
     }
 
