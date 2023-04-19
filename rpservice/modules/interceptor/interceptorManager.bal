@@ -44,23 +44,27 @@ function init() returns error? {
     json[] resultAr = check readplugin().ensureType();
     foreach var resconfig in resultAr {
         RequestConfig requestConfigs = check resconfig.cloneWithType(RequestConfig);
-        io:println("requestConfigs init #", requestConfigs);
+        //io:println("requestConfigs init #", requestConfigs);
         if (requestConfigs.basePath != ()) {
             pluginMap[<string>requestConfigs.basePath] = requestConfigs;
         }
     }
     loadPlugin();
     io:println("property map init #",util:propertiesMap) ;
+    io:println("-------------------------------------") ;
+    io:println("pluginMap init #", pluginMap);
 }
 
-public function interceptRequest(http:Caller caller, http:Request req) returns boolean {
+public function interceptRequest(http:Caller caller, http:Request req) returns boolean|error {
     string basePath = req.rawPath;
-    RequestConfig requestConfig = check pluginMap.get(basePath);
+    RequestConfig requestConfig = pluginMap.get(basePath);
     foreach RequestPlugin requestPlugin in requestConfig.requestPlugin {
         io:println("invoke interceptor request manager !!!!!!", requestPlugin.id);
         plugin:Plugin? plugin = pluginModuleMap[requestPlugin.id];
         if (plugin != ()) {
+            io:println("call plugin ->",plugin);
             boolean|error pluginresponse = plugin.callPlugin(caller, req);
+            //return check pluginresponse;
         }
     }
     return true;
