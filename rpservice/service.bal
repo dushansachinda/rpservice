@@ -31,12 +31,30 @@ service / on new http:Listener(9095) {
         if (urlPostfix != "" && !hasPrefix(urlPostfix, "/")) {
             urlPostfix = "/" + urlPostfix;
         }
+
+        if(endpointUrls[req.rawPath] == ()) {
+            http:Response response = new ();
+                response.setJsonPayload("{error: \"resouce not available\"}");
+                response.statusCode = 404;
+                http:ListenerError? respond = caller->respond(response);
+                if respond is http:ListenerError {
+
+                }
+                if respond is error {
+
+                }
+            log:printError("No endpoint found for path: ", a = req.rawPath);
+            return;
+        }
+        
         //request interceptor pre-processing
         boolean pluginres = check interceptor:interceptRequest(caller, req);
         if !pluginres {
             return;
         }
         //TODO validate request chain context and return
+
+        
         var result = callEndpoint(caller, req, <string>endpointUrls[req.rawPath], urlPostfix);
 
         // response interceptor post-processing
