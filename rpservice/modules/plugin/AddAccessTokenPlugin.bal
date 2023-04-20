@@ -12,7 +12,7 @@ public class AddAccessTokenPlugin {
     }
     public function callPlugin(http:Caller caller, http:Request req) returns boolean|error {
         io:println("AddAccessTokenPlugin !!!!!!");
-        final http:Client clientEndpoint = check new ("https://api.asgardeo.io/t/hahack23", httpVersion = http:HTTP_1_1);
+        final http:Client clientEndpoint = check new (util:propertiesMap.get("oauth-service-url"), httpVersion = http:HTTP_1_1);
     
         string client_id = util:propertiesMap.get("client-id");
         string client_secret = util:propertiesMap.get("client-secret");
