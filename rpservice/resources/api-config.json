@@ -46,11 +46,12 @@
         "id": "AddStandardNDPHeadersPlugin"
       },
       {
-        "id": "AddAccessTokenPlugin"
+        "id": "NetworkControlPlugin"
       },
       {
-        "id": "NetworkControlPlugin"
+        "id": "AddAccessTokenPlugin"
       }
+      
     ],
     "responsePlugin": [
     ]
