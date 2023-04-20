@@ -31,12 +31,6 @@ service / on new http:Listener(9095) {
         if (urlPostfix != "" && !hasPrefix(urlPostfix, "/")) {
             urlPostfix = "/" + urlPostfix;
         }
-
-        log:printInfo("map: path #####", sr = paths[0], sr2 = paths[1]);
-        log:printInfo("map: search #####", sr = endpointUrls[paths[0]]);
-        log:printInfo("map: req rawpath#####", sr = req.rawPath);
-
-        log:printInfo("map: call interceptor#####");
         //request interceptor pre-processing
         boolean pluginres = check interceptor:interceptRequest(caller, req);
         if !pluginres {
@@ -47,6 +41,9 @@ service / on new http:Listener(9095) {
 
         // response interceptor post-processing
         boolean respresult = interceptor:interceptResponse(caller, req);
+         if !respresult {
+            return;
+        }
 
         if (result is error) {
             log:printError("Error calling endpoint: ", err = result.toString());
