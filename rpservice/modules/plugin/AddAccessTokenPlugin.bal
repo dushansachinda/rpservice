@@ -2,6 +2,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/log;
+import rpservice.util;
 
 public class AddAccessTokenPlugin {
     *Plugin;
@@ -12,7 +13,11 @@ public class AddAccessTokenPlugin {
     public function callPlugin(http:Caller caller, http:Request req) returns boolean|error {
         io:println("AddAccessTokenPlugin !!!!!!");
         final http:Client clientEndpoint = check new ("https://api.asgardeo.io/t/hahack23", httpVersion = http:HTTP_1_1);
-        string encoded = "ZwsAB4FFH6vUHqMlLprElsmgjq8a" + ":" + "c4nwkM9_jET5mBC5xYitPK9nd6Ma";
+    
+        string client_id = util:propertiesMap.get("client-id");
+        string client_secret = util:propertiesMap.get("client-secret");
+
+        string encoded = client_id + ":" + client_secret;
         byte[] inputArr = encoded.toBytes();
         string encodedString = inputArr.toBase64();
 

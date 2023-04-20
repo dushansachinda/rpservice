@@ -23,7 +23,6 @@ public class NetworkControlPlugin {
             if (isProxy) {
                 return true;
             } else {
-                //handle error
                 http:Response response = new ();
                 response.setJsonPayload("{error: \"invalid proxy ip\"}");
                 response.statusCode = 500;
