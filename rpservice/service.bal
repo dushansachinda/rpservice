@@ -26,7 +26,7 @@ service / on new http:Listener(9095) {
             urlPostfix = "/" + urlPostfix;
         }
 
-        string? basepath = util:findclosestBasePath(paths, util:endpointUrls.keys());
+        string? basepath = util:findclosestBasePath(paths);
 
         if(util:endpointUrls[<string>basepath] == ()) {
             http:Response response = new ();

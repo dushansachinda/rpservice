@@ -31,12 +31,12 @@ public function readProperties() {
 
 }
 
-public function findclosestBasePath(string[] paths, string[] storedPaths) returns string? {
+public function findclosestBasePath(string[] paths) returns string? {
     string basePath = "/";
     foreach string path in paths {
         basePath = basePath + path + "/";
     }
-
+    string[] storedPaths = endpointUrls.keys();
     string closestPath = "";
     int maxMatchCount = 0;
     foreach string storedPath in storedPaths {
