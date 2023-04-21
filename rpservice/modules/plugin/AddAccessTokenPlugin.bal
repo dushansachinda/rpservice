@@ -14,7 +14,7 @@ public class AddAccessTokenPlugin {
     json cacheToken = {};
     int accessTokenBufferTime = 900000;
 
-    public function callPlugin(http:Caller caller, http:Request req) returns boolean|error {
+    public function callReqPlugin(http:Caller caller, http:Request req) returns boolean|error {
         io:println("AddAccessTokenPlugin !!!!!!");
         if (check self.isNonExpired()) {
             // token is not expired
@@ -51,6 +51,11 @@ public class AddAccessTokenPlugin {
            
         }
 
+        return true;
+    }
+
+    public function callResPlugin(http:Caller caller, http:Request req) returns boolean|error  {
+        io:println("AccessTokenPlugin !!!!!!") ;
         return true;
     }
 

@@ -36,11 +36,20 @@ type ResourceConfig record {
 };
 
 map<RequestConfig> pluginMap = {};
+map<ResponsePlugin> resPluginMap = {};
 map<plugin:Plugin> pluginModuleMap = {};
 
 function init() returns error? {
     util:readProperties();
     json[] resultAr = check readplugin().ensureType();
+    buildRequestPlugin(resultAr);
+    loadPlugin();
+    io:println("property map init #", util:propertiesMap);
+    io:println("-------------------------------------");
+    io:println("pluginMap init #", pluginMap);
+}
+
+function buildRequestPlugin(json[] resultAr) {
     RequestPlugin[] defaulReqConfigs = [];
     foreach var resconfig in resultAr {
         RequestConfig requestConfigs = check resconfig.cloneWithType(RequestConfig);
@@ -49,6 +58,8 @@ function init() returns error? {
         } else {
             defaulReqConfigs.push(...requestConfigs.requestPlugin);
         }
+    } on fail var e {
+        io:println("error in buildRequestPlugin", e);
     }
     //add default configs to all
     foreach var key in pluginMap.keys() {
@@ -56,23 +67,18 @@ function init() returns error? {
         requestConfig.requestPlugin.push(...defaulReqConfigs);
         pluginMap[key] = requestConfig;
     }
-
-    loadPlugin();
-    io:println("property map init #", util:propertiesMap);
-    io:println("-------------------------------------");
-    io:println("pluginMap init #", pluginMap);
 }
 
+
 public function interceptRequest(http:Caller caller, http:Request req) returns boolean|error {
-    string basePath = req.rawPath;
+    string basePath = req.rawPath; //TODO deterime correct way to extract base path
     RequestConfig requestConfig = pluginMap.get(basePath);
     foreach RequestPlugin requestPlugin in requestConfig.requestPlugin {
         io:println("invoke interceptor request manager !!!!!!", requestPlugin.id);
         plugin:Plugin? plugin = pluginModuleMap[requestPlugin.id];
         if (plugin != ()) {
             io:println("call plugin ->", plugin);
-            boolean|error pluginresponse = plugin.callPlugin(caller, req);
-            //return check pluginresponse;
+            boolean|error pluginresponse = plugin.callReqPlugin(caller, req);
             if (pluginresponse is error) {
                 return false;
             }
@@ -88,7 +94,26 @@ public function interceptRequest(http:Caller caller, http:Request req) returns b
 }
 
 public function interceptResponse(http:Caller caller, http:Request req) returns boolean {
-    io:println("invoke  interceptor response manager !!!!!!");
+    io:println("invoke  interceptor responsePlugin manager !!!!!!");
+    string basePath = req.rawPath; //TODO deterime correct way to extract base path
+    RequestConfig requestConfig = pluginMap.get(basePath);
+    foreach ResponsePlugin responsePlugin in requestConfig.responsePlugin {
+        io:println("invoke interceptor responsePlugin manager !!!!!!", responsePlugin.id);
+        plugin:Plugin? plugin = pluginModuleMap[responsePlugin.id];
+        if (plugin != ()) {
+            io:println("call plugin  responsePlugin->", plugin);
+            boolean|error pluginresponse = plugin.callResPlugin(caller, req);
+            if (pluginresponse is error) {
+                return false;
+            }
+            if (pluginresponse is boolean) {
+                if (pluginresponse == false) {
+                    io:println("hit error plugin ->", plugin);
+                    return false;
+                }
+            }
+        }
+    }
     return true;
 }
 
@@ -104,7 +129,7 @@ public function loadPlugin() {
     plugin:AddStandardNDPHeadersPlugin addStandardNDPHeadersPlugin = new;
     plugin:SMLevelCheckerPlugin smLevelCheckerPlugin = new;
     plugin:NetworkControlPlugin networkControlPlugin = new;
-    plugin:UserShellInjector  userShellInjector = new;
+    plugin:UserShellInjector userShellInjector = new;
 
     pluginModuleMap["AddAccessTokenPlugin"] = addAccessTokenPlugin;
     pluginModuleMap["AddStandardNDPHeadersPlugin"] = addStandardNDPHeadersPlugin;

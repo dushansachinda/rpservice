@@ -7,8 +7,13 @@ public class UserShellInjector  {
     public function init() {
       
     }
-    public function callPlugin(http:Caller caller, http:Request req) returns boolean|error  {
-        io:println("UserShellInjector !!!!!!") ;
+    public function callReqPlugin(http:Caller caller, http:Request req) returns boolean|error  {
+        io:println("UserShellInjector reqest !!!!!!") ;
+        return true;
+    }
+
+     public function callResPlugin(http:Caller caller, http:Request req) returns boolean|error  {
+        io:println("UserShellInjector respnse !!!!!!") ;
         return true;
     }
 

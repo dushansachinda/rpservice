@@ -6,7 +6,12 @@ public class AddStandardNDPHeadersPlugin {
     public function init() {
       
     }
-    public function callPlugin(http:Caller caller, http:Request req) returns boolean|error {
+    public function callReqPlugin(http:Caller caller, http:Request req) returns boolean|error {
+        io:println("AddStandardNDPHeadersPlugin !!!!!!") ;
+        return true;
+    }
+
+     public function callResPlugin(http:Caller caller, http:Request req) returns boolean|error  {
         io:println("AddStandardNDPHeadersPlugin !!!!!!") ;
         return true;
     }

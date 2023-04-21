@@ -10,7 +10,7 @@ public class NetworkControlPlugin {
     public function init() {
 
     }
-    public function callPlugin(http:Caller caller, http:Request req) returns boolean|error {
+    public function callReqPlugin(http:Caller caller, http:Request req) returns boolean|error {
         io:println("NetworkControlPlugin #### !!!!!!");
         io:println("check ip list !!!!!!", util:propertiesMap.get("proxy-ips"));
         string[] xforwardlist = check self.getIPList(check req.getHeader("x-forwarded-for"));
@@ -37,6 +37,11 @@ public class NetworkControlPlugin {
 
             }
         }
+    }
+
+    public function callResPlugin(http:Caller caller, http:Request req) returns boolean|error  {
+        io:println("NetworkControlPlugin !!!!!!") ;
+        return true;
     }
 
     public function getIPList(string xForwardedFor) returns (string[]|error) {
