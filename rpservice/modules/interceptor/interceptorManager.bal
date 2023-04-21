@@ -51,12 +51,14 @@ function init() returns error? {
 
 function buildRequestPlugin(json[] resultAr) {
     RequestPlugin[] defaulReqConfigs = [];
+    ResponsePlugin[] defaulResConfigs = [];
     foreach var resconfig in resultAr {
         RequestConfig requestConfigs = check resconfig.cloneWithType(RequestConfig);
         if (requestConfigs.basePath != ()) {
             pluginMap[<string>requestConfigs.basePath] = requestConfigs;
         } else {
             defaulReqConfigs.push(...requestConfigs.requestPlugin);
+            defaulResConfigs.push(...requestConfigs.responsePlugin);
         }
     } on fail var e {
         io:println("error in buildRequestPlugin", e);
@@ -65,6 +67,7 @@ function buildRequestPlugin(json[] resultAr) {
     foreach var key in pluginMap.keys() {
         RequestConfig requestConfig = pluginMap.get(key);
         requestConfig.requestPlugin.push(...defaulReqConfigs);
+        requestConfig.responsePlugin.push(...defaulResConfigs);
         pluginMap[key] = requestConfig;
     }
 }
