@@ -73,9 +73,9 @@ function buildRequestPlugin(json[] resultAr) {
 }
 
 
-public function interceptRequest(http:Caller caller, http:Request req) returns boolean|error {
-    string basePath = req.rawPath; //TODO deterime correct way to extract base path
-    RequestConfig requestConfig = pluginMap.get(basePath);
+public function interceptRequest(string [] paths,http:Caller caller, http:Request req) returns boolean|error {
+    string? basePath = util:findclosestBasePath(paths, util:endpointUrls.keys()); //TODO deterime correct way to extract base path
+    RequestConfig requestConfig = pluginMap.get(<string>basePath);
     foreach RequestPlugin requestPlugin in requestConfig.requestPlugin {
         io:println("invoke interceptor request manager !!!!!!", requestPlugin.id);
         plugin:Plugin? plugin = pluginModuleMap[requestPlugin.id];
@@ -96,10 +96,10 @@ public function interceptRequest(http:Caller caller, http:Request req) returns b
     return true;
 }
 
-public function interceptResponse(http:Caller caller, http:Request req) returns boolean {
+public function interceptResponse(string [] paths,http:Caller caller, http:Request req) returns boolean {
     io:println("invoke  interceptor responsePlugin manager !!!!!!");
-    string basePath = req.rawPath; //TODO deterime correct way to extract base path
-    RequestConfig requestConfig = pluginMap.get(basePath);
+     string? basePath = util:findclosestBasePath(paths, util:endpointUrls.keys());  //TODO deterime correct way to extract base path
+    RequestConfig requestConfig = pluginMap.get(<string>basePath);
     foreach ResponsePlugin responsePlugin in requestConfig.responsePlugin {
         io:println("invoke interceptor responsePlugin manager !!!!!!", responsePlugin.id);
         plugin:Plugin? plugin = pluginModuleMap[responsePlugin.id];
