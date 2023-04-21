@@ -4,7 +4,6 @@ import ballerina/http;
 import rpservice.util;
 import ballerina/regex;
 
-
 type RequestConfig record {
     string id;
     string basePath?;
@@ -42,16 +41,25 @@ map<plugin:Plugin> pluginModuleMap = {};
 function init() returns error? {
     util:readProperties();
     json[] resultAr = check readplugin().ensureType();
+    RequestPlugin[] defaulReqConfigs = [];
     foreach var resconfig in resultAr {
         RequestConfig requestConfigs = check resconfig.cloneWithType(RequestConfig);
-        //io:println("requestConfigs init #", requestConfigs);
         if (requestConfigs.basePath != ()) {
             pluginMap[<string>requestConfigs.basePath] = requestConfigs;
+        } else {
+            defaulReqConfigs.push(...requestConfigs.requestPlugin);
         }
     }
+    //add default configs to all
+    foreach var key in pluginMap.keys() {
+        RequestConfig requestConfig = pluginMap.get(key);
+        requestConfig.requestPlugin.push(...defaulReqConfigs);
+        pluginMap[key] = requestConfig;
+    }
+
     loadPlugin();
-    io:println("property map init #",util:propertiesMap) ;
-    io:println("-------------------------------------") ;
+    io:println("property map init #", util:propertiesMap);
+    io:println("-------------------------------------");
     io:println("pluginMap init #", pluginMap);
 }
 
@@ -62,15 +70,15 @@ public function interceptRequest(http:Caller caller, http:Request req) returns b
         io:println("invoke interceptor request manager !!!!!!", requestPlugin.id);
         plugin:Plugin? plugin = pluginModuleMap[requestPlugin.id];
         if (plugin != ()) {
-            io:println("call plugin ->",plugin);
+            io:println("call plugin ->", plugin);
             boolean|error pluginresponse = plugin.callPlugin(caller, req);
             //return check pluginresponse;
-            if(pluginresponse is error){
+            if (pluginresponse is error) {
                 return false;
             }
             if (pluginresponse is boolean) {
-                if(pluginresponse == false){
-                    io:println("hit error plugin ->",plugin);
+                if (pluginresponse == false) {
+                    io:println("hit error plugin ->", plugin);
                     return false;
                 }
             }
@@ -96,11 +104,13 @@ public function loadPlugin() {
     plugin:AddStandardNDPHeadersPlugin addStandardNDPHeadersPlugin = new;
     plugin:SMLevelCheckerPlugin smLevelCheckerPlugin = new;
     plugin:NetworkControlPlugin networkControlPlugin = new;
+    plugin:UserShellInjector  userShellInjector = new;
 
     pluginModuleMap["AddAccessTokenPlugin"] = addAccessTokenPlugin;
     pluginModuleMap["AddStandardNDPHeadersPlugin"] = addStandardNDPHeadersPlugin;
     pluginModuleMap["SMLevelCheckerPlugin"] = smLevelCheckerPlugin;
     pluginModuleMap["NetworkControlPlugin"] = networkControlPlugin;
+    pluginModuleMap["userShellInjector"] = userShellInjector;
 }
 
 public map<string> propertiesMap = {};
@@ -123,6 +133,4 @@ public function readProperties() {
     }
 
 }
-
-
 

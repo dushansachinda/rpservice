@@ -4,7 +4,7 @@ import ballerina/log;
 import rpservice.interceptor;
 import ballerina/jballerina.java;
 
-// Define the endpoint URLs as a map
+// Define the endpoint URLs as a map (we may need to read this from a config file)
 map<string> endpointUrls = {
     "/admin/sniff.jsp": "https://run.mocky.io/v3/6613f69c-65cf-44d4-b29c-7887f21cfd59",
     "/api/npx-service": "https://run.mocky.io/v3/84643c67-6ddb-4cf1-8141-f637154c9520",
@@ -46,7 +46,7 @@ service / on new http:Listener(9095) {
             log:printError("No endpoint found for path: ", a = req.rawPath);
             return;
         }
-        
+
         //request interceptor pre-processing
         boolean pluginres = check interceptor:interceptRequest(caller, req);
         if !pluginres {
