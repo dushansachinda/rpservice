@@ -42,7 +42,7 @@ service / on new http:Listener(9095) {
         }
 
         //request interceptor pre-processing
-        boolean pluginres = check interceptor:interceptRequest(paths,caller, req);
+        boolean pluginres = check interceptor:interceptRequest(<string>basepath,caller, req);
         if !pluginres {
             return;
         }
@@ -50,7 +50,7 @@ service / on new http:Listener(9095) {
         var result = callEndpoint(caller, req, <string>npx:getEndpointUrl(<string>basepath), urlPostfix);
 
         // response interceptor post-processing
-        boolean respresult = interceptor:interceptResponse(paths,caller, req);
+        boolean respresult = interceptor:interceptResponse(<string>basepath,caller, req);
          if !respresult {
             return;
         }
