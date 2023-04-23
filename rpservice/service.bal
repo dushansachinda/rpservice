@@ -2,8 +2,8 @@ import ballerina/http;
 //import rpservice.filters;
 import ballerina/log;
 import rpservice.interceptor;
-import rpservice.util;
 import ballerina/jballerina.java;
+import rpservice.npx;
 
 
 
@@ -26,9 +26,8 @@ service / on new http:Listener(9095) {
             urlPostfix = "/" + urlPostfix;
         }
 
-        string? basepath = util:findclosestBasePath(paths);
-
-        if(util:endpointUrls[<string>basepath] == ()) {
+        string? basepath = npx:findclosestBasePath(paths);
+        if(npx:getEndpointUrl(<string>basepath) == ()) {
             http:Response response = new ();
                 response.setJsonPayload("{error: \"resouce not available\"}");
                 response.statusCode = 404;
@@ -51,7 +50,7 @@ service / on new http:Listener(9095) {
         //TODO validate request chain context and return
 
         
-        var result = callEndpoint(caller, req, <string>util:endpointUrls[<string>basepath], urlPostfix);
+        var result = callEndpoint(caller, req, <string>npx:getEndpointUrl(<string>basepath), urlPostfix);
 
         // response interceptor post-processing
         boolean respresult = interceptor:interceptResponse(paths,caller, req);

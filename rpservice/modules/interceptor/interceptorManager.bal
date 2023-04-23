@@ -1,11 +1,10 @@
 import ballerina/io;
 import rpservice.plugin;
 import ballerina/http;
-import rpservice.util;
 import rpservice.npx;
 
 public function interceptRequest(string[] paths, http:Caller caller, http:Request req) returns boolean|error {
-    string? basePath = util:findclosestBasePath(paths); //TODO deterime correct way to extract base path
+    string? basePath = npx:findclosestBasePath(paths); //TODO deterime correct way to extract base path
     npx:RequestConfig? requestConfig = npx:getPlugin(<string>basePath);
     if (requestConfig == ()) {
         return false;
@@ -32,7 +31,7 @@ public function interceptRequest(string[] paths, http:Caller caller, http:Reques
 
 public function interceptResponse(string[] paths, http:Caller caller, http:Request req) returns boolean {
     io:println("invoke  interceptor responsePlugin manager !!!!!!");
-    string? basePath = util:findclosestBasePath(paths); //TODO deterime correct way to extract base path
+    string? basePath = npx:findclosestBasePath(paths); //TODO deterime correct way to extract base path
     npx:RequestConfig? requestConfig = npx:getPlugin(<string>basePath);
     if (requestConfig == ()) {
         return false;
