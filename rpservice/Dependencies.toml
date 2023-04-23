@@ -336,6 +336,7 @@ dependencies = [
 modules = [
 	{org = "dushan", packageName = "rpservice", moduleName = "rpservice"},
 	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.interceptor"},
+	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.npx"},
 	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.plugin"},
 	{org = "dushan", packageName = "rpservice", moduleName = "rpservice.util"}
 ]
