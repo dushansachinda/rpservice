@@ -17,7 +17,6 @@ import rpservice.npx;
 service / on new http:Listener(9095) {
 
     resource function 'default [string... paths](http:Caller caller, http:Request req) returns error? {
-        //TODO dynamically invoke the BE based on plugin chain context and return
         //return string `method: ${req.method}, path: ${paths.toString()}`;
         //string path = req.rawPath;
         string urlPostfix = req.rawPath; 
@@ -47,9 +46,7 @@ service / on new http:Listener(9095) {
         if !pluginres {
             return;
         }
-        //TODO validate request chain context and return
 
-        
         var result = callEndpoint(caller, req, <string>npx:getEndpointUrl(<string>basepath), urlPostfix);
 
         // response interceptor post-processing

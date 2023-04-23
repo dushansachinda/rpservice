@@ -43,10 +43,25 @@ public type ResourceConfig record {
     "/api/nxn-navbar-service": "https://run.mocky.io/v3/8f5cd8a1-85ae-4d73-946b-59dda7ce5992"
 };
 
+//configurable map <string> endpoints = ?;
+
 
 map<RequestConfig> pluginMap = {};
 map<ResponsePlugin> resPluginMap = {};
 map<plugin:Plugin> pluginModuleMap = {};
+
+function init() returns error? {
+    util:readProperties();
+    json[] resultAr = check readplugin().ensureType();
+    buildRequestPlugin(resultAr);
+    loadPlugin();
+    io:println("property map init #", util:propertiesMap);
+    io:println("-------------------------------------");
+    io:println("pluginMap init #", pluginMap);
+    io:println("-------------------------------------");
+    // io:println("Config toml test #######", endpoints);
+    // io:println("-------------------------------------");
+}
 
 public function getPlugin(string basePath) returns RequestConfig? {
     RequestConfig? requestConfig = pluginMap[basePath];
@@ -71,15 +86,7 @@ public function readplugin() returns json|error {
     return pluginChainJson;
 }
 
-function init() returns error? {
-    util:readProperties();
-    json[] resultAr = check readplugin().ensureType();
-    buildRequestPlugin(resultAr);
-    loadPlugin();
-    io:println("property map init #", util:propertiesMap);
-    io:println("-------------------------------------");
-    io:println("pluginMap init #", pluginMap);
-}
+
 
 public function loadPlugin() {
     plugin:AddAccessTokenPlugin addAccessTokenPlugin = new;
