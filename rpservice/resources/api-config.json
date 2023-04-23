@@ -50,6 +50,9 @@
       },
       {
         "id": "AddAccessTokenPlugin"
+      },
+      {
+        "id": "IntropJavaPlugin"
       }
       
     ],
