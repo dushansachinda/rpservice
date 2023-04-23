@@ -133,12 +133,14 @@ public function loadPlugin() {
     plugin:SMLevelCheckerPlugin smLevelCheckerPlugin = new;
     plugin:NetworkControlPlugin networkControlPlugin = new;
     plugin:UserShellInjector userShellInjector = new;
+    plugin:IntropJavaPlugin intropJavaPlugin = new;
 
     pluginModuleMap["AddAccessTokenPlugin"] = addAccessTokenPlugin;
     pluginModuleMap["AddStandardNDPHeadersPlugin"] = addStandardNDPHeadersPlugin;
     pluginModuleMap["SMLevelCheckerPlugin"] = smLevelCheckerPlugin;
     pluginModuleMap["NetworkControlPlugin"] = networkControlPlugin;
     pluginModuleMap["userShellInjector"] = userShellInjector;
+    pluginModuleMap["IntropJavaPlugin"] = intropJavaPlugin;
 }
 
 public map<string> propertiesMap = {};
