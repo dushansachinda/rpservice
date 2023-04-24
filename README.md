@@ -5,12 +5,12 @@ An application gateway is a service designed to manage and improve traffic to an
 This repository includes a sample application gateway written in Ballerina that can be customized to route and handle one or more applications. Additionally, it offers the capability to execute policy agents for each request and response, which can be configured as plugins within the gateway. This enables fine-grained control over traffic and the enforcement of policies based on specific attributes of each request and response.
 
 ### Implementation Notes
-- `modules/config` - module contains a set of `configurable` variables to configure the gateway. 
-- `modules/plugins` - modules contains the current list of sample policy agents implemented as plugins
-- `service.bal` - contains the main HTTP service that forward requests to configured application endpoints. 
-- `interceptors.bal` - contains a pair of request and response interceptors. They intercept HTTP requests and responses respectively and execute the the plugin chain configured for the application.
-- `gateway.bal` - initializes the getway to support configured applications with their plugin chains
-- `plugins.bal` - initialzes the plugins
+- [`modules/config`](modules/config/config.bal) - module contains a set of `configurable` variables to configure the gateway. 
+- [`modules/plugins`](modules/plugins/plugin_type.bal) - modules contains the current list of sample policy agents implemented as plugins
+- [`service.bal`](service.bal) - contains the main HTTP service that forward requests to configured application endpoints. 
+- [`interceptors.bal`](interceptors.bal) - contains a pair of request and response interceptors. They intercept HTTP requests and responses respectively and execute the the plugin chain configured for the application.
+- [`gateway.bal`](gateway.bal) - initializes the getway to support configured applications with their plugin chains
+- [`plugins.bal`](plugins.bal) - initialzes the plugins
 
 ### TODO
 - Refactor the codebase with custom Ballerina error types.

@@ -17,11 +17,3 @@ public configurable table<PluginConfig> key(id) responsePlugins = ?;
 public configurable map<string> pluginProperties = ?;
 public configurable table<ApplicationConfig> key(basePath) apps = ?;
 public configurable int port = 9090;
-
-
-// function init() {
-//     io:println(requestPlugins);
-//     io:println(responsePlugins);
-//     io:println(pluginProperties);
-//     io:println(apps);
-// }
