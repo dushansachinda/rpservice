@@ -1,13 +1,11 @@
 import ballerina/http;
-import gateway.config;
-import gateway.plugins;
 
 type Application record {|
     readonly string basePath;
     string endpointUrl;
     http:Client httpClient;
-    plugins:Plugin[] requestPlugins;
-    plugins:Plugin[] responsePlugins;
+    Plugin[] requestPlugins;
+    Plugin[] responsePlugins;
 |};
 
 type PathSegmentNode record {|
@@ -16,19 +14,19 @@ type PathSegmentNode record {|
     table<PathSegmentNode> key(path) children = table [];
 |};
 
-final table<Application> key(basePath) applications;
-final table<PathSegmentNode> key(path) dispatchTable;
+table<Application> key(basePath) appContexts = table [];
+table<PathSegmentNode> key(path) dispatchTable = table [];
 
-function init() returns error? {
-    do {
-        applications = check createApps(config:apps);
-        dispatchTable = check initDispatchTable(applications);
-    } on fail error e {
-        return error("Error initializing gateway", cause = e);
-    }
-}
+// function init() returns error? {
+//     do {
+//         appContexts = check createApps(apps);
+//         dispatchTable = check initDispatchTable(appContexts);
+//     } on fail error e {
+//         return error("Error initializing gateway", cause = e);
+//     }
+// }
 
-isolated function createApps(table<config:ApplicationConfig> key(basePath) appConfigs) returns table<Application> key(basePath)|error {
+function createApps(table<ApplicationConfig> key(basePath) appConfigs) returns table<Application> key(basePath)|error {
     table<Application> key(basePath) apps = table [];
     from var appConfig in appConfigs
     do {
@@ -72,13 +70,13 @@ isolated function initDispatchTable(table<Application> key(basePath) application
     return dispatchTable;
 }
 
-isolated function createApp(config:ApplicationConfig appConfig) returns Application|error {
+function createApp(ApplicationConfig appConfig) returns Application|error {
     http:Client|error httpClient = new (appConfig.endpointUrl);
     if httpClient is error {
         return error("Error initializing application client", basePath = appConfig.basePath, endpointUrl = appConfig.endpointUrl, cause = httpClient);
     }
-    plugins:Plugin[] requestPlugins = check loadPlugins(appConfig.requestPlugins, appConfig.basePath);
-    plugins:Plugin[] responsePlugins = check loadPlugins(appConfig.responsePlugins, appConfig.basePath);
+    Plugin[] requestPlugins = check loadPlugins(appConfig.requestPlugins, appConfig.basePath);
+    Plugin[] responsePlugins = check loadPlugins(appConfig.responsePlugins, appConfig.basePath);
     return let var {basePath, endpointUrl} = appConfig in {
             basePath,
             endpointUrl,
@@ -88,7 +86,7 @@ isolated function createApp(config:ApplicationConfig appConfig) returns Applicat
         };
 }
 
-isolated function loadPlugins(table<config:PluginConfig> key(id)? pluginConfigs, string basePath) returns plugins:Plugin[]|error {
+function loadPlugins(table<PluginConfig> key(id)? pluginConfigs, string basePath) returns Plugin[]|error {
     if pluginConfigs is () {
         return [];
     }
@@ -97,9 +95,36 @@ isolated function loadPlugins(table<config:PluginConfig> key(id)? pluginConfigs,
         select check initPlugin(pluginConfig, basePath);
 }
 
-function retrieveApplication(http:RequestContext requestCtx) returns Application {
-    // The following will never return an error. If it does, it is a developer error.
-    string basePath = checkpanic requestCtx.getWithType(KEY_BASEPATH);
-    return applications.get(basePath);
+function initPlugin(PluginConfig pluginConfig, string basePath) returns Plugin|error {
+    if !registeredPlugins.hasKey(pluginConfig.id) {
+        return error("Plugin not found", id = pluginConfig.id, app_base_path = basePath);
+    }
+
+    PluginInitFunction pluginInitFunc = registeredPlugins.get(pluginConfig.id);
+    Plugin|error plugin = pluginInitFunc(pluginConfig);
+    if plugin is error {
+        return error("Error initializing plugin", id = pluginConfig.id, app_base_path = basePath, cause = plugin);
+    }
+
+    return plugin;
 }
 
+public type PluginInitFunction function (PluginConfig pluginConfig) returns Plugin|error;
+
+final map<PluginInitFunction> registeredPlugins = {};
+
+public function registerPlugin(string pluginId, PluginInitFunction pluginInitFunction) {
+    registeredPlugins[pluginId] = pluginInitFunction;
+}
+
+public function 'start(http:Listener httpListener) returns error? {
+    do {
+        appContexts = check createApps(apps);
+        dispatchTable = check initDispatchTable(appContexts);
+    } on fail error e {
+        return error("Error initializing gateway", cause = e);
+    }
+
+    check httpListener.attach(gatewayService);
+    check httpListener.'start();
+}

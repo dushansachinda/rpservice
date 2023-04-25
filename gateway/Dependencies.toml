@@ -296,7 +296,7 @@ modules = [
 ]
 
 [[package]]
-org = "xyz"
+org = "ballerinax"
 name = "gateway"
 version = "0.1.0"
 dependencies = [
@@ -305,8 +305,6 @@ dependencies = [
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
-	{org = "xyz", packageName = "gateway", moduleName = "gateway"},
-	{org = "xyz", packageName = "gateway", moduleName = "gateway.config"},
-	{org = "xyz", packageName = "gateway", moduleName = "gateway.plugins"}
+	{org = "ballerinax", packageName = "gateway", moduleName = "gateway"}
 ]
 

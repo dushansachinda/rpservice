@@ -1,5 +1,5 @@
 [package]
-org = "xyz"
+org = "ballerinax"
 name = "gateway"
 version = "0.1.0"
 distribution = "2201.5.0"
