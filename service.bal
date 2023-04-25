@@ -8,8 +8,12 @@ import gateway.config;
 service / on new http:Listener(config:port) {
 
     resource function 'default [string... path](http:Request request, http:RequestContext requestCtx) returns http:Response|error {
+
+        // TODO Bring request interceptor logic here.
+
+
         // TODO Improve the following logic based on the WSO2 MG implementation.
-        Application app = findApplication(requestCtx);
+        Application app = retrieveApplication(requestCtx);
         log:printDebug("Gateway service invoked...", basePath = app.basePath);
 
         // Remove the base path from the request path.
@@ -18,6 +22,11 @@ service / on new http:Listener(config:port) {
 
         http:Client appClient = app.httpClient;
         http:Response|http:ClientError response = appClient->forward(urlPostfix, request);
+
+
+        // TODO Bring response interceptor logic here.
+
+
         // TODO Improve the following logic to handle errors properly.
         if (response is http:Response) {
             return response;

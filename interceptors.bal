@@ -28,8 +28,9 @@ service class RequestInterceptor {
             log:printDebug("Plugin chain successfully executed", application = pluginCtx.basePath);
             return requestCtx.next();
         } else {
+            // Assumption is that plugin has already responded using http:Caller. If the response has not been written, returning () will return an HTTP 500 error to the client.
             log:printError("Plugin chain failed", application = pluginCtx.basePath);
-            return ();
+            return (); 
         }
     }
 }
@@ -38,7 +39,7 @@ service class ResponseInterceptor {
     *http:ResponseInterceptor;
 
     remote function interceptResponse(http:Response response, http:Caller caller, http:RequestContext requestCtx) returns http:NextService|error? {
-        Application app = findApplication(requestCtx);
+        Application app = retrieveApplication(requestCtx);
 
         // Execute the plugin chain
         plugins:Plugin[] plugins = app.responsePlugins;

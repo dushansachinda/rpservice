@@ -12,8 +12,8 @@ public type PluginConfig readonly & record {|
     // map<string> config = {};
 |};
 
-public configurable table<PluginConfig> key(id) requestPlugins = ?;
-public configurable table<PluginConfig> key(id) responsePlugins = ?;
-public configurable map<string> pluginProperties = ?;
-public configurable table<ApplicationConfig> key(basePath) apps = ?;
+public configurable table<PluginConfig> key(id) requestPlugins = ?; // Global request plugins
+public configurable table<PluginConfig> key(id) responsePlugins = ?; // Global response plugins
+public configurable map<string> pluginProperties = ?; // Each plugin should define its own configurable.. 
+public configurable table<ApplicationConfig> key(basePath) apps = ?; // Application  configurations
 public configurable int port = 9090;
