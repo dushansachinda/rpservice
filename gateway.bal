@@ -97,7 +97,7 @@ isolated function loadPlugins(table<config:PluginConfig> key(id)? pluginConfigs,
         select check initPlugin(pluginConfig, basePath);
 }
 
-function findApplication(http:RequestContext requestCtx) returns Application {
+function retrieveApplication(http:RequestContext requestCtx) returns Application {
     // The following will never return an error. If it does, it is a developer error.
     string basePath = checkpanic requestCtx.getWithType(KEY_BASEPATH);
     return applications.get(basePath);
