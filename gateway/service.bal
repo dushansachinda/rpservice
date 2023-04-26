@@ -1,69 +1,61 @@
 import ballerina/log;
 import ballerina/http;
 
-// @http:ServiceConfig {
-//     interceptors: [new RequestInterceptor(), new ResponseInterceptor()]
-// }
-// service / on new http:Listener(port) {
+type HttpErrorPayload record {
+    string message;
+    string path;
+};
 
-http:Service gatewayService  = service object {
+service class GatewayService {
+    *http:Service;
 
-// service class GatewayService {
-//     *http:Service;
+    private final table<PathSegmentNode> key(path) dispatchTable;
 
-    resource function 'default [string... path](http:Request request, http:Caller caller) returns error? {
-        // TODO Bring request interceptor logic here.
-        log:printInfo("Request intercepted", path = path);
+    function init(table<PathSegmentNode> key(path) dispatchTable) {
+        self.dispatchTable = dispatchTable;
+    }
 
+    resource function 'default [string... path](http:Request request) returns http:Response|error {
         // TODO: Contextual logger
-        Application? app = findApp(path);
-        if app is () {
-            log:printError("No matching application found", path = path);
-            http:Response response = new ();
-            response.setJsonPayload({'error: "No matching application found", path: request.rawPath});
-            response.statusCode = 404;
-            // return response;
-            check caller->respond(response);
-            return;
+        log:printDebug("Request intercepted", path = path);
+
+        AppContext? appContext = self.findAppContext(path);
+        if appContext is () {
+            log:printError(ERR_MSG_NO_APP_FOUND, path = path);
+            HttpErrorPayload errorPayload = {message: ERR_MSG_NO_APP_FOUND, path: request.rawPath};
+            return self.createHttpResponse(errorPayload, 400);
         }
 
         // Execute the plugin chain
-        Plugin[] reqPlugins = app.requestPlugins;
-        RequestPluginContext reqPluginCtx = createRequestPluginContext(request, caller, app);
-        if !runRequestPluginChain(reqPlugins, reqPluginCtx) {
-            // Assumption is that plugin has already responded using http:Caller. If the response has not been written, returning () will return an HTTP 500 error to the client.
-            log:printError("Plugin chain failed", application = reqPluginCtx.basePath);
-            // TODO Figure out a better way to handle this.
-            return error("Response plugin chain failed");
+        Plugin[] reqPlugins = appContext.requestPlugins;
+        RequestPluginContext reqPluginCtx = self.createRequestPluginContext(request, appContext);
+        PluginStatus reqPluginStatus = self.runRequestPluginChain(reqPlugins, reqPluginCtx);
+        if reqPluginStatus is Abort {
+            log:printError("Plugin chain failed", application = appContext.basePath);
+            return reqPluginStatus.httpResponse;
         }
-
-        log:printDebug("Plugin chain successfully executed", application = reqPluginCtx.basePath);
+        log:printDebug("Plugin chain successfully executed", application = appContext.basePath);
 
         // TODO Improve the following logic based on the WSO2 MG implementation.
-        log:printDebug("Gateway service invoked...", basePath = app.basePath);
-
         // Remove the base path from the request path.
-        string urlPostfix = self.removeBasePathFromRequestPath(request.rawPath, app.basePath);
+        string urlPostfix = self.removeBasePathFromRequestPath(request.rawPath, appContext.basePath);
         log:printDebug("Paths", requestPath = request.rawPath, urlPostfix = urlPostfix);
 
-        http:Client appClient = app.httpClient;
+        http:Client appClient = appContext.httpClient;
         http:Response|http:ClientError response = appClient->forward(urlPostfix, request);
-
-        // TODO Bring response interceptor logic here.
 
         // TODO Improve the following logic to handle errors properly.
         if (response is http:Response) {
             // Execute the plugin chain
-            Plugin[] resPlugins = app.responsePlugins;
-            ResponsePluginContext resPluginCtx = createResponsePluginContext(response, caller, app);
-            if runResponsePluginChain(resPlugins, resPluginCtx) {
-                log:printDebug("Plugin chain successfully executed", application = resPluginCtx.basePath);
-                // return response;
-                check caller->respond(response);
-                return;
-            } else {
+            Plugin[] resPlugins = appContext.responsePlugins;
+            ResponsePluginContext resPluginCtx = self.createResponsePluginContext(response, appContext);
+            PluginStatus resPluginStatus = self.runResponsePluginChain(resPlugins, resPluginCtx);
+            if resPluginStatus is Abort {
                 log:printError("Plugin chain failed", application = resPluginCtx.basePath);
-                return error("Response plugin chain failed");
+                return resPluginStatus.httpResponse;
+            } else {
+                log:printDebug("Plugin chain successfully executed", application = resPluginCtx.basePath);
+                return response;
             }
         } else {
             log:printError("Error calling endpoint: ", err = response.toString());
@@ -78,5 +70,68 @@ http:Service gatewayService  = service object {
             urlPostfix = "/" + urlPostfix;
         }
         return urlPostfix;
+    }
+
+    function findAppContext(string[] pathSegments) returns AppContext? {
+        if pathSegments.length() == 0 {
+            return ();
+        }
+
+        PathSegmentNode? curPathNode = ();
+        table<PathSegmentNode> key(path) currentDispatchTable = self.dispatchTable;
+        foreach var pathSegment in pathSegments {
+            if currentDispatchTable.hasKey(pathSegment) {
+                PathSegmentNode pathNode = currentDispatchTable.get(pathSegment);
+                currentDispatchTable = pathNode.children;
+                curPathNode = pathNode;
+            } else {
+                break;
+            }
+        }
+
+        return curPathNode is () ? () : curPathNode.app;
+    }
+
+    isolated function runRequestPluginChain(Plugin[] plugins, RequestPluginContext pluginCtx) returns PluginStatus {
+        log:printDebug("Invoking request plugin chain.", application = pluginCtx.basePath);
+        foreach var plugin in plugins {
+            PluginStatus status = plugin.processRequest(pluginCtx);
+            if status is Abort {
+                return status;
+            }
+        }
+        return PLUGIN_STATUS_CONTINUE;
+    }
+
+    isolated function runResponsePluginChain(Plugin[] plugins, ResponsePluginContext pluginCtx) returns PluginStatus {
+        log:printDebug("Invoking response plugin chain.", application = pluginCtx.basePath);
+        foreach var plugin in plugins {
+            PluginStatus status = plugin.processResponse(pluginCtx);
+            if status is Abort {
+                return status;
+            }
+        }
+        return PLUGIN_STATUS_CONTINUE;
+    }
+
+    isolated function createRequestPluginContext(http:Request request, AppContext app) returns RequestPluginContext {
+        return {
+            basePath: app.basePath,
+            httpRequest: request
+        };
+    }
+
+    isolated function createResponsePluginContext(http:Response response, AppContext app) returns ResponsePluginContext {
+        return {
+            basePath: app.basePath,
+            httpResponse: response
+        };
+    }
+
+    isolated function createHttpResponse(HttpErrorPayload errorPayload, int statusCode) returns http:Response {
+        http:Response response = new;
+        response.statusCode = statusCode;
+        response.setJsonPayload(errorPayload.toJson());
+        return response;
     }
 };
