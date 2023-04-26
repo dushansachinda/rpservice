@@ -1,7 +1,7 @@
 import ballerina/log;
 import ballerinax/gateway;
 
-public const PLUGIN_ID_CORS_HEADERS = "CORSHeaderPlugin";
+const PLUGIN_ID_CORS_HEADERS = "CORSHeaderPlugin";
 
 public isolated class CORSHeaderPlugin {
     *gateway:Plugin;
@@ -13,13 +13,13 @@ public isolated class CORSHeaderPlugin {
         // Validate the config
     }
     
-    public isolated function processRequest(gateway:RequestPluginContext pluginCtx) returns boolean {
+    public isolated function processRequest(gateway:RequestPluginContext pluginCtx) returns gateway:PluginStatus {
         log:printDebug("Plugin processRequest invoked", plugin = PLUGIN_ID_CORS_HEADERS);
-        return true;
+        return gateway:PLUGIN_STATUS_CONTINUE;
     }
 
-    public isolated function processResponse(gateway:ResponsePluginContext pluginCtx) returns boolean {
+    public isolated function processResponse(gateway:ResponsePluginContext pluginCtx) returns gateway:PluginStatus {
         log:printDebug("Plugin processResponse invoked", plugin = PLUGIN_ID_CORS_HEADERS);        
-        return true;
+        return gateway:PLUGIN_STATUS_CONTINUE;
     }
 }

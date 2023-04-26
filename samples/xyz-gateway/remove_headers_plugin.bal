@@ -1,7 +1,7 @@
 import ballerinax/gateway;
 import ballerina/log;
 
-public const PLUGIN_ID_REMOVE_HEADERS = "RemoveHeadersPlugin";
+const PLUGIN_ID_REMOVE_HEADERS = "RemoveHeadersPlugin";
 
 public isolated class RemoveHeadersPlugin {
     *gateway:Plugin;
@@ -12,13 +12,13 @@ public isolated class RemoveHeadersPlugin {
         // Validate the config
     }
 
-    public isolated function processRequest(gateway:RequestPluginContext pluginCtx) returns boolean {
+    public isolated function processRequest(gateway:RequestPluginContext pluginCtx) returns gateway:PluginStatus {
         log:printDebug("Plugin processRequest invoked", plugin = PLUGIN_ID_REMOVE_HEADERS);
-        return true;
+        return gateway:PLUGIN_STATUS_CONTINUE;
     }
 
-    public isolated function processResponse(gateway:ResponsePluginContext pluginCtx) returns boolean {
+    public isolated function processResponse(gateway:ResponsePluginContext pluginCtx) returns gateway:PluginStatus {
         log:printDebug("Plugin processResponse invoked", plugin = PLUGIN_ID_REMOVE_HEADERS);        
-        return true;
+        return gateway:PLUGIN_STATUS_CONTINUE;
     }
 }

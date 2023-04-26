@@ -1,7 +1,8 @@
 import ballerinax/gateway;
 import ballerina/http;
 
-listener http:Listener httpListener = check new (9090);
+http:ListenerConfiguration listenerConfig = {};
+listener http:Listener httpListener = check new (9090, listenerConfig);
 
 public function main() returns error? {
     gateway:registerPlugin(PLUGIN_ID_ADD_ACCESS_TOKEN, pluginConfig => new AddAccessTokenPlugin(pluginConfig));
@@ -9,6 +10,7 @@ public function main() returns error? {
     gateway:registerPlugin(PLUGIN_ID_CORS_HEADERS, pluginConfig => new CORSHeaderPlugin(pluginConfig));
     gateway:registerPlugin(PLUGIN_ID_NETWORK_CONTROL, pluginConfig => new NetworkControlPlugin(pluginConfig));
     gateway:registerPlugin(PLUGIN_ID_REMOVE_HEADERS, pluginConfig => new RemoveHeadersPlugin(pluginConfig));
+    gateway:registerPlugin(PLUGIN_ID_ALWAYS_ABORT_PLUGIN, pluginConfig => new AlwaysAbortPlugin(pluginConfig));
 
     check gateway:'start(httpListener);
 }

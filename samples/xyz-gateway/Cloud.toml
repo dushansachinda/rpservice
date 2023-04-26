@@ -1,0 +1,16 @@
+[container.image]
+name = "xyz-gateway"
+repository = "xyz"
+tag = "0.1.0"
+
+# [[container.copy.files]]
+# sourceFile = "./certs/server.key"
+# target = "./certs/server.key"
+
+# [[container.copy.files]]
+# sourceFile = "./certs/server.crt"
+# target = "./certs/server.crt"
+
+[[container.copy.files]]
+sourceFile="./Config.toml"
+target="./Config.toml"
