@@ -9,7 +9,7 @@ config = {appId = "xyz-app"}
 
 # Application 1 
 [[ballerinax.gateway.apps]]
-basePath = "/app/nxn-resource-cache"
+basePath = "/app/xyz-resource-cache"
 endpointUrl = "https://run.mocky.io/v3/34a9aeba-0b71-4fac-8451-b122c50cce45"
 
 [[ballerinax.gateway.apps.requestPlugins]]
@@ -17,7 +17,7 @@ id = "AddAccessTokenPlugin"
 
 # Application 2
 [[ballerinax.gateway.apps]]
-basePath = "/api/nxn-navbar-service"
+basePath = "/api/xyz-navbar-service"
 endpointUrl = "https://run.mocky.io/v3/8f5cd8a1-85ae-4d73-946b-59dda7ce5992"
 
 [[ballerinax.gateway.apps.requestPlugins]]
@@ -32,24 +32,24 @@ id = "AddAccessTokenPlugin"
 
 # Application 3
 [[ballerinax.gateway.apps]]
-basePath = "/api/nxn-entitlement-service"
+basePath = "/api/xyz-entitlement-service"
 endpointUrl = "https://run.mocky.io/v3/6613f69c-65cf-44d4-b29c-7887f21cfd59"
 
 [[ballerinax.gateway.apps.requestPlugins]]
 id = "NetworkControlPlugin"
 config = {level = "2"}
 
-[[ballerinax.gateway.apps.requestPlugins]]
-id = "AddAccessTokenPlugin"
+[[ballerinax.gateway.apps.responsePlugins]]
+id = "RemoveHeadersPlugin"
 
 # Application 4
 [[ballerinax.gateway.apps]]
-basePath = "/api/nxn-entitlement-service/metrics"
+basePath = "/api/xyz-entitlement-service/metrics"
 endpointUrl = "https://run.mocky.io/v3/b6a301fc-64d8-497d-9138-058d8946bd70"
 
 # Application 5
 [[ballerinax.gateway.apps]]
-basePath = "/api/npx-service"
+basePath = "/api/xyz-service"
 endpointUrl = "https://run.mocky.io/v3/84643c67-6ddb-4cf1-8141-f637154c9520"
 
 # Application 6
