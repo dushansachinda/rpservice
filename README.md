@@ -1,6 +1,6 @@
 ## Gateway
 
-An application gateway is a service designed to manage and improve traffic to and from web applications and apis by performing various functions such as load balancing, SSL/TLS offloading, security, traffic shaping, and caching.
+A gateway is a service designed to manage and improve traffic to and from web applications and apis by performing various functions such as load balancing, SSL/TLS offloading, security, traffic shaping, and caching.
 
 This repository includes a sample gateway written in Ballerina that can be customized to route and handle one or more applications and apis. Additionally, it offers the capability to execute policy agents for each request and response, which can be configured as plugins within the gateway. This enables fine-grained control over traffic and the enforcement of policies based on specific attributes of each request and response.
 
