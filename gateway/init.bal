@@ -98,9 +98,8 @@ function createHttpClient(string endpointUrl, string basePath) returns http:Clie
     if httpClient is error {
         return error("Error initializing application client", basePath = basePath,
             endpointUrl = endpointUrl, cause = httpClient);
-    } else {
-        return httpClient;
-    }
+    } 
+    return httpClient;
 }
 
 function loadGlobalPlugins(table<PluginConfig> key(id) pluginConfigs,
@@ -108,9 +107,8 @@ function loadGlobalPlugins(table<PluginConfig> key(id) pluginConfigs,
     Plugin[]|error plugins = loadPlugins(pluginConfigs, registeredPlugins);
     if plugins is error {
         return error("Error initializing global plugins", cause = plugins);
-    } else {
-        return plugins;
-    }
+    } 
+    return plugins;
 }
 
 function loadAppPlugins(table<PluginConfig> key(id)? appPluginConfigs,
@@ -122,9 +120,8 @@ function loadAppPlugins(table<PluginConfig> key(id)? appPluginConfigs,
     Plugin[]|error plugins = loadPlugins(appPluginConfigs, registeredPlugins);
     if plugins is error {
         return error("Error initializing application plugins", basePath = basePath, cause = plugins);
-    } else {
-        return plugins;
-    }
+    } 
+    return plugins;
 }
 
 function loadPlugins(table<PluginConfig> key(id) pluginConfigs,
