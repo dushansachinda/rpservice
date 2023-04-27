@@ -1,5 +1,5 @@
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 
 type HttpErrorPayload record {
     string message;
@@ -45,7 +45,7 @@ service class GatewayService {
         http:Response|http:ClientError response = appClient->forward(urlPostfix, request);
 
         // TODO Improve the following logic to handle errors properly.
-        if (response is http:Response) {
+        if response is http:Response {
             // Execute the plugin chain
             Plugin[] resPlugins = appContext.responsePlugins;
             ResponsePluginContext resPluginCtx = self.createResponsePluginContext(response, appContext);

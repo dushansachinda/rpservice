@@ -45,13 +45,13 @@ public final Continue PLUGIN_STATUS_CONTINUE = {};
 # and then defining following methods.
 public type Plugin distinct isolated object {
 
-    # Processes the request and return `Continue` or `Abort` status.
+    # Processes the request and returns `Continue` or `Abort` status.
     #
     # + pluginCtx - Contains context information that is required to process the request
     # + return - plugin status indicating whether the plugin execution should be continued or aborted
     public isolated function processRequest(RequestPluginContext pluginCtx) returns PluginStatus;
 
-    # Processes the response and return `Continue` or `Abort` status.
+    # Processes the response and returns `Continue` or `Abort` status.
     #
     # + pluginCtx - Contains context information that is required to process the response
     # + return - plugin status indicating whether the plugin execution should be continued or aborted
