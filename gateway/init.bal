@@ -14,7 +14,7 @@ type PathSegmentNode record {|
     table<PathSegmentNode> key(path) children = table [];
 |};
 
-final map<PluginInitFunction> pluginRegistry = {};
+final isolated map<PluginInitFunction> pluginRegistry = {};
 
 isolated function initDispatchTable(
         table<AppContext> key(basePath) appContexts) returns table<PathSegmentNode> key(path)|error {
@@ -55,7 +55,7 @@ isolated function addAppToDispatchTable(string[] paths, string basePath, AppCont
     currentPathSegment.app = appContext;
 }
 
-function createAppContexts(table<ApplicationConfig> key(basePath) appConfigs,
+isolated function createAppContexts(table<ApplicationConfig> key(basePath) appConfigs,
         map<PluginInitFunction> registeredPlugins) returns table<AppContext> key(basePath)|error {
     Plugin[] globalReqPlugins = check loadGlobalPlugins(requestPlugins, registeredPlugins);
     Plugin[] globalResPlugins = check loadGlobalPlugins(responsePlugins, registeredPlugins);
@@ -79,7 +79,7 @@ function createAppContexts(table<ApplicationConfig> key(basePath) appConfigs,
     return apps;
 }
 
-function createAppContext(ApplicationConfig appConfig, Plugin[] globalReqPlugins, Plugin[] globalResPlugins,
+isolated function createAppContext(ApplicationConfig appConfig, Plugin[] globalReqPlugins, Plugin[] globalResPlugins,
         map<PluginInitFunction> registeredPlugins) returns AppContext|error {
     var {basePath, endpointUrl} = appConfig;
     Plugin[] appReqPlugins = check loadAppPlugins(appConfig.requestPlugins, registeredPlugins, basePath);
@@ -93,7 +93,7 @@ function createAppContext(ApplicationConfig appConfig, Plugin[] globalReqPlugins
     };
 }
 
-function createHttpClient(string endpointUrl, string basePath) returns http:Client|error {
+isolated function createHttpClient(string endpointUrl, string basePath) returns http:Client|error {
     http:Client|error httpClient = new (endpointUrl);
     if httpClient is error {
         return error("Error initializing application client", basePath = basePath,
@@ -103,7 +103,7 @@ function createHttpClient(string endpointUrl, string basePath) returns http:Clie
     }
 }
 
-function loadGlobalPlugins(table<PluginConfig> key(id) pluginConfigs,
+isolated function loadGlobalPlugins(table<PluginConfig> key(id) pluginConfigs,
         map<PluginInitFunction> registeredPlugins) returns Plugin[]|error {
     Plugin[]|error plugins = loadPlugins(pluginConfigs, registeredPlugins);
     if plugins is error {
@@ -113,7 +113,7 @@ function loadGlobalPlugins(table<PluginConfig> key(id) pluginConfigs,
     }
 }
 
-function loadAppPlugins(table<PluginConfig> key(id)? appPluginConfigs,
+isolated function loadAppPlugins(table<PluginConfig> key(id)? appPluginConfigs,
         map<PluginInitFunction> registeredPlugins, string basePath) returns Plugin[]|error {
     if appPluginConfigs is () {
         return [];
@@ -127,13 +127,13 @@ function loadAppPlugins(table<PluginConfig> key(id)? appPluginConfigs,
     }
 }
 
-function loadPlugins(table<PluginConfig> key(id) pluginConfigs,
+isolated function loadPlugins(table<PluginConfig> key(id) pluginConfigs,
         map<PluginInitFunction> registeredPlugins) returns Plugin[]|error {
     return from var pluginConfig in pluginConfigs
         select check initPlugin(pluginConfig, registeredPlugins);
 }
 
-function initPlugin(PluginConfig pluginConfig, map<PluginInitFunction> registeredPlugins) returns Plugin|error {
+isolated function initPlugin(PluginConfig pluginConfig, map<PluginInitFunction> registeredPlugins) returns Plugin|error {
     if !registeredPlugins.hasKey(pluginConfig.id) {
         return error("Plugin not found", id = pluginConfig.id);
     }

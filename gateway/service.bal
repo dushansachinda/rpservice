@@ -10,6 +10,7 @@ service class GatewayService {
     *http:Service;
 
     private final table<PathSegmentNode> key(path) dispatchTable;
+    // private final map<http:Client> appClients;
 
     function init(table<PathSegmentNode> key(path) dispatchTable) {
         self.dispatchTable = dispatchTable;

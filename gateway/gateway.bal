@@ -7,8 +7,10 @@ public type PluginInitFunction function (PluginConfig pluginConfig) returns Plug
 #
 # + pluginId - Plugin Id. This id should match with the plugin id specified in the gateway configuration  
 # + pluginInitFunction - a function to create instances of user-provided plugins
-public function registerPlugin(string pluginId, PluginInitFunction pluginInitFunction) {
-    pluginRegistry[pluginId] = pluginInitFunction;
+public isolated function registerPlugin(string pluginId, PluginInitFunction pluginInitFunction) {
+    lock {
+        pluginRegistry[pluginId] = pluginInitFunction;
+    }
 }
 
 # Starts the gateway with the given configurations.
@@ -18,7 +20,11 @@ public function registerPlugin(string pluginId, PluginInitFunction pluginInitFun
 public function 'start(http:Listener httpListener) returns error? {
     // TODO Design error types for the gateway library
     do {
-        table<AppContext> key(basePath) appContexts = check createAppContexts(apps, pluginRegistry);
+        map<PluginInitFunction> pluginReg;
+        lock {
+            pluginReg = pluginRegistry.cloneReadOnly();
+        }
+        table<AppContext> key(basePath) appContexts = check createAppContexts(apps, pluginReg);
         table<PathSegmentNode> key(path) dispatchTable = check initDispatchTable(appContexts);
 
         GatewayService gatewayService = new (dispatchTable);
