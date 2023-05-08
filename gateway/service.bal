@@ -1,5 +1,5 @@
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 
 type HttpErrorPayload record {
     string message;
