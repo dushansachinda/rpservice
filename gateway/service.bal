@@ -16,9 +16,9 @@ service class GatewayService {
     }
 
     resource function 'default [string... path](http:Request request) returns http:Response|error {
-        // TODO: Contextual logger
         log:printDebug("Request intercepted", path = path);
 
+        // 1) Find the application using the dispatch table
         AppContext? appContext = self.findAppContext(path);
         if appContext is () {
             log:printError(ERR_MSG_NO_APP_FOUND, path = path);
@@ -26,7 +26,7 @@ service class GatewayService {
             return self.createHttpResponse(errorPayload, 400);
         }
 
-        // Execute the plugin chain
+        // 2) Execute the request plugin chain
         Plugin[] reqPlugins = appContext.requestPlugins;
         RequestPluginContext reqPluginCtx = self.createRequestPluginContext(request, appContext);
         PluginStatus reqPluginStatus = self.runRequestPluginChain(reqPlugins, reqPluginCtx);
@@ -36,17 +36,14 @@ service class GatewayService {
         }
         log:printDebug("Plugin chain successfully executed", application = appContext.basePath);
 
-        // TODO Improve the following logic based on the WSO2 MG implementation.
-        // Remove the base path from the request path.
+        // 3) Forward the request to the backend endpoint
         string urlPostfix = self.removeBasePathFromRequestPath(request.rawPath, appContext.basePath);
         log:printDebug("Paths", requestPath = request.rawPath, urlPostfix = urlPostfix);
-
         http:Client appClient = appContext.httpClient;
         http:Response|http:ClientError response = appClient->forward(urlPostfix, request);
 
-        // TODO Improve the following logic to handle errors properly.
         if (response is http:Response) {
-            // Execute the plugin chain
+            // 4) Execute the reqsponse plugin chain
             Plugin[] resPlugins = appContext.responsePlugins;
             ResponsePluginContext resPluginCtx = self.createResponsePluginContext(response, appContext);
             PluginStatus resPluginStatus = self.runResponsePluginChain(resPlugins, resPluginCtx);
