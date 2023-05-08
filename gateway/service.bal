@@ -39,8 +39,8 @@ service class GatewayService {
         // 3) Forward the request to the backend endpoint
         string urlPostfix = self.removeBasePathFromRequestPath(request.rawPath, appContext.basePath);
         log:printDebug("Paths", requestPath = request.rawPath, urlPostfix = urlPostfix);
-        http:Client appClient = appContext.httpClient;
-        http:Response|http:ClientError response = appClient->forward(urlPostfix, request);
+        http:Client endpoint = appContext.httpClient;
+        http:Response|http:ClientError response = endpoint->forward(urlPostfix, request);
 
         if (response is http:Response) {
             // 4) Execute the reqsponse plugin chain
