@@ -1,12 +1,66 @@
 import ballerina/http;
 
-type AppContext record {|
-    readonly string basePath;
-    string endpointUrl;
-    http:Client httpClient;
-    Plugin[] requestPlugins;
-    Plugin[] responsePlugins;
-|};
+isolated class AppContext {
+    private final string _basePath;
+    private final string _endpointUrl;
+    private final http:Client _httpClient;
+    private final Plugin[] requestPlugins = [];
+    private final Plugin[] responsePlugins = [];
+
+    isolated function init(string basePath, string endpointUrl, http:Client httpClient) {
+        self._basePath = basePath;
+        self._endpointUrl = endpointUrl;
+        self._httpClient = httpClient;
+    }
+
+    isolated function addRequestPlugin(Plugin plugin) {
+        lock {
+            self.requestPlugins.push(plugin);
+        }
+    }
+
+    isolated function addResponsePlugin(Plugin plugin) {
+        lock {
+            self.responsePlugins.push(plugin);
+        }
+    }
+
+    isolated function basePath() returns string {
+        return self._basePath;
+    }
+
+    isolated function endpointUrl() returns string {
+        return self._endpointUrl;
+    }
+
+    isolated function httpClient() returns http:Client {
+        return self._httpClient;
+    }
+
+    isolated function requestPluginCount() returns int {
+        lock {
+            return self.requestPlugins.length();
+        }
+    }
+
+   isolated function requestPlugin(int index) returns Plugin {
+        lock {
+            return self.requestPlugins[index];
+        }
+    }
+
+    isolated function responsePluginCount() returns int {
+        lock {
+            return self.responsePlugins.length();
+        }
+    }
+
+    isolated function responsePlugin(int index) returns Plugin {
+        lock {
+            return self.responsePlugins[index];
+        }
+    }
+};
 
 type PathSegmentNode record {|
     readonly string path;
@@ -16,12 +70,16 @@ type PathSegmentNode record {|
 
 final isolated map<PluginInitFunction> pluginRegistry = {};
 
-isolated function initDispatchTable(
-        table<AppContext> key(basePath) appContexts) returns table<PathSegmentNode> key(path)|error {
+isolated function createDispatchTable(
+        readonly & table<ApplicationConfig> key(basePath) appConfigs,
+        readonly & map<PluginInitFunction> registeredPlugins)
+        returns table<PathSegmentNode> key(path)|error {
+
+    map<AppContext> appContexts = check createAppContexts(appConfigs, registeredPlugins);
     table<PathSegmentNode> key(path) dispatchTable = table [];
     foreach var appContext in appContexts {
-        string basePath = appContext.basePath;
-        string[] paths = re `/`.split(basePath);
+        string basePath = appContext.basePath();
+        readonly & string[] paths = re `/`.split(basePath).cloneReadOnly();
         paths = from var path in paths
             where path != ""
             select path;
@@ -56,7 +114,7 @@ isolated function addAppToDispatchTable(string[] paths, string basePath, AppCont
 }
 
 isolated function createAppContexts(table<ApplicationConfig> key(basePath) appConfigs,
-        map<PluginInitFunction> registeredPlugins) returns table<AppContext> key(basePath)|error {
+        map<PluginInitFunction> registeredPlugins) returns map<AppContext>|error {
     Plugin[] globalReqPlugins = check loadGlobalPlugins(requestPlugins, registeredPlugins);
     Plugin[] globalResPlugins = check loadGlobalPlugins(responsePlugins, registeredPlugins);
 
@@ -66,17 +124,17 @@ isolated function createAppContexts(table<ApplicationConfig> key(basePath) appCo
     // Plugin[] globalResPlugins = from var pluginConfig in responsePlugins
     //     select check initPlugin(pluginConfig, basePath);
 
-    table<AppContext> key(basePath) apps = table [];
+    map<AppContext> appContexts = {};
     from var appConfig in appConfigs
     do {
         string basePath = appConfig.basePath;
-        AppContext|error app = createAppContext(appConfig, globalReqPlugins, globalResPlugins, registeredPlugins);
-        if app is error {
-            return error("Error initializing application", basePath = basePath, cause = app);
+        AppContext|error appContext = createAppContext(appConfig, globalReqPlugins, globalResPlugins, registeredPlugins);
+        if appContext is error {
+            return error("Error initializing application", basePath = basePath, cause = appContext);
         }
-        apps.add(app);
+        appContexts[basePath] = appContext;
     };
-    return apps;
+    return appContexts;
 }
 
 isolated function createAppContext(ApplicationConfig appConfig, Plugin[] globalReqPlugins, Plugin[] globalResPlugins,
@@ -84,13 +142,17 @@ isolated function createAppContext(ApplicationConfig appConfig, Plugin[] globalR
     var {basePath, endpointUrl} = appConfig;
     Plugin[] appReqPlugins = check loadAppPlugins(appConfig.requestPlugins, registeredPlugins, basePath);
     Plugin[] appResPlugins = check loadAppPlugins(appConfig.responsePlugins, registeredPlugins, basePath);
-    return {
-        basePath,
-        endpointUrl,
-        httpClient: check createHttpClient(endpointUrl, basePath),
-        requestPlugins: [...globalReqPlugins, ...appReqPlugins],
-        responsePlugins: [...globalResPlugins, ...appResPlugins]
-    };
+    appReqPlugins = [...globalReqPlugins, ...appReqPlugins];
+    appResPlugins = [...globalResPlugins, ...appResPlugins];
+
+    AppContext appContext = new(basePath, endpointUrl, httpClient = check createHttpClient(endpointUrl, basePath));
+    foreach var plugin in appReqPlugins {
+        appContext.addRequestPlugin(plugin);
+    }
+    foreach var plugin in appResPlugins {
+        appContext.addResponsePlugin(plugin);
+    }
+    return appContext;
 }
 
 isolated function createHttpClient(string endpointUrl, string basePath) returns http:Client|error {
