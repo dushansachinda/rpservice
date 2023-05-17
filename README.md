@@ -101,6 +101,14 @@ id = "RemoveHeadersPlugin"
 config = {appId = "xyz-app"}
 ```
 
+### Java Interoperability
+
+The plugin [`HazelcastMapClientPlugin`](samples/xyz-gateway/hazelcast_map_client_plugin.bal) is written to communicate with an existing Hazelcast cluster. This sample plugin is written to demonstrate the Java interoperability feature in Ballerina.
+
+```shell
+bal bindgen --public  -mvn com.hazelcast:hazelcast:5.2.3 --output modules/hazelcast com.hazelcast.client.HazelcastClient com.hazelcast.core.HazelcastInstance com.hazelcast.map.IMap java.util.Set
+```
+
 ### TODO
 - Refactor the codebase with custom Ballerina error types.
 - Improve error handling and logic througout the codebase.
