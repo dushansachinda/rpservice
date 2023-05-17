@@ -1,4 +1,5 @@
 import ballerinax/gateway;
+import ballerina/uuid;
 import ballerina/log;
 
 const PLUGIN_ID_ADD_HEADERS = "AddHeadersPlugin";
@@ -14,6 +15,7 @@ public isolated class AddHeadersPlugin {
 
     public isolated function processRequest(gateway:RequestPluginContext pluginCtx) returns gateway:PluginStatus {
         log:printDebug("Plugin processRequest invoked", plugin = PLUGIN_ID_ADD_HEADERS);
+        pluginCtx.httpRequest.addHeader(HEADER_CORELATION_ID_KEY, uuid:createType4AsString());
         return gateway:PLUGIN_STATUS_CONTINUE;
     }
 
