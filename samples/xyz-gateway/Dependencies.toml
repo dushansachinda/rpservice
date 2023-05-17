@@ -105,6 +105,20 @@ dependencies = [
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
+modules = [
+	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
+]
+
+[[package]]
+org = "ballerina"
+name = "jballerina.java.arrays"
+version = "1.2.3"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
+]
+modules = [
+	{org = "ballerina", packageName = "jballerina.java.arrays", moduleName = "jballerina.java.arrays"}
+]
 
 [[package]]
 org = "ballerina"
@@ -284,6 +298,21 @@ dependencies = [
 ]
 
 [[package]]
+org = "ballerina"
+name = "uuid"
+version = "1.5.0"
+dependencies = [
+	{org = "ballerina", name = "crypto"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.int"},
+	{org = "ballerina", name = "regex"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "uuid", moduleName = "uuid"}
+]
+
+[[package]]
 org = "ballerinai"
 name = "observe"
 version = "0.0.0"
@@ -314,11 +343,15 @@ name = "xyz_gateway"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "jballerina.java.arrays"},
 	{org = "ballerina", name = "log"},
+	{org = "ballerina", name = "uuid"},
 	{org = "ballerinai", name = "observe"},
 	{org = "ballerinax", name = "gateway"}
 ]
 modules = [
-	{org = "xyz", packageName = "xyz_gateway", moduleName = "xyz_gateway"}
+	{org = "xyz", packageName = "xyz_gateway", moduleName = "xyz_gateway"},
+	{org = "xyz", packageName = "xyz_gateway", moduleName = "xyz_gateway.hazelcast"}
 ]
 

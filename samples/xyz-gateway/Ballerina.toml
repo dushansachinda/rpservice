@@ -12,3 +12,8 @@ org = "ballerinax"
 name = "gateway"
 version = "0.1.0"
 repository = "local"
+
+[[platform.java11.dependency]]
+groupId = "com.hazelcast"
+artifactId = "hazelcast"
+version = "5.2.3"

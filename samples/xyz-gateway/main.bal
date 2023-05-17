@@ -11,6 +11,7 @@ public function main() returns error? {
     gateway:registerPlugin(PLUGIN_ID_NETWORK_CONTROL, pluginConfig => new NetworkControlPlugin(pluginConfig));
     gateway:registerPlugin(PLUGIN_ID_REMOVE_HEADERS, pluginConfig => new RemoveHeadersPlugin(pluginConfig));
     gateway:registerPlugin(PLUGIN_ID_ALWAYS_ABORT_PLUGIN, pluginConfig => new AlwaysAbortPlugin(pluginConfig));
+    gateway:registerPlugin(PLUGIN_ID_HAZELCAST_MAP_CLIENT, pluginConfig => new HazelcastMapClientPlugin(pluginConfig));
 
     check gateway:'start(httpListener);
 }

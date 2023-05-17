@@ -39,8 +39,14 @@ endpointUrl = "https://run.mocky.io/v3/6613f69c-65cf-44d4-b29c-7887f21cfd59"
 id = "NetworkControlPlugin"
 config = {level = "2"}
 
+[[ballerinax.gateway.apps.requestPlugins]]
+id = "HazelcastMapClientPlugin"
+
 [[ballerinax.gateway.apps.responsePlugins]]
 id = "RemoveHeadersPlugin"
+
+[[ballerinax.gateway.apps.responsePlugins]]
+id = "HazelcastMapClientPlugin"
 
 # Application 4
 [[ballerinax.gateway.apps]]
