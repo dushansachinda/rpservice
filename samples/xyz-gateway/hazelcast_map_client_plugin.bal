@@ -14,7 +14,7 @@ public isolated class HazelcastMapClientPlugin {
     private final hazelcast:HazelcastInstance hz;
     private final string distributedMapName;
 
-    public function init(gateway:PluginConfig pluginConfig) returns error? {
+    public isolated function init(gateway:PluginConfig pluginConfig) returns error? {
         self.pluginConfig = pluginConfig;
         map<string> config = pluginConfig.config ?: {};
         self.distributedMapName = config["distributedMapName"] ?: DEFULT_DISTRIBUTED_MAP_NAME;

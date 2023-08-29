@@ -1,7 +1,7 @@
 import ballerina/http;
 
 # A function type for creating `Plugin` instances for each plugin configuration.
-public type PluginInitFunction function (PluginConfig pluginConfig) returns Plugin|error;
+public type PluginInitFunction isolated function (PluginConfig pluginConfig) returns Plugin|error;
 
 # Registers a user-provided `Plugin` implementation for a given plugin id.
 #
