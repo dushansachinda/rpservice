@@ -9,7 +9,7 @@ public isolated class AlwaysAbortPlugin {
     private final gateway:PluginConfig pluginConfig;
 
     // Define custom error types here.
-    public function init(gateway:PluginConfig pluginConfig) returns error? {
+    public isolated function init(gateway:PluginConfig pluginConfig) returns error? {
         self.pluginConfig = pluginConfig;
         // Validate the config
     }

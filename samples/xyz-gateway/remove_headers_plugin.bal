@@ -7,7 +7,7 @@ public isolated class RemoveHeadersPlugin {
     *gateway:Plugin;
     private final gateway:PluginConfig pluginConfig;
 
-    public function init(gateway:PluginConfig pluginConfig) returns error? {
+    public isolated function init(gateway:PluginConfig pluginConfig) returns error? {
         self.pluginConfig = pluginConfig;
         // Validate the config
     }
